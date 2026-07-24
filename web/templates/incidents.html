@@ -1,0 +1,27 @@
+{{define "incidents"}}{{template "page_start" .}}
+<h1 class="page-title">Incidents</h1>
+<div class="btn-row" style="margin-bottom:14px">
+  <a class="btn" href="/incidents/export?format=json">Export JSON</a>
+  <a class="btn" href="/incidents/export?format=csv">Export CSV</a>
+</div>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Service</th><th>Confirmed offline</th><th>Recovered</th><th>Duration</th><th>Classification</th><th>Notified</th></tr></thead>
+    <tbody>
+    {{range .Data.Incidents}}
+      <tr>
+        <td class="mono"><a href="/incidents/{{.ID}}">{{shortid .ID}}</a></td>
+        <td>{{.Service}}</td>
+        <td>{{$.FTime .ConfirmedOfflineAt}}</td>
+        <td>{{if .RecoveredAt}}{{$.FTime .RecoveredAt}}{{else}}<span class="badge bad"><span class="dot"></span>Open</span>{{end}}</td>
+        <td>{{if .Open}}—{{else}}{{fdur .DurationSeconds}}{{end}}</td>
+        <td>{{.Classification}}</td>
+        <td>{{if .OutageNotified}}<span class="badge ok"><span class="dot"></span>Sent</span>{{else}}<span class="badge neutral"><span class="dot"></span>No</span>{{end}}</td>
+      </tr>
+    {{else}}
+      <tr><td colspan="7" class="subtle">No incidents recorded. That's a good thing.</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{template "page_end" .}}{{end}}

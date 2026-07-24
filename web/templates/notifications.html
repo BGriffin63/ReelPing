@@ -1,0 +1,23 @@
+{{define "notifications"}}{{template "page_start" .}}
+<h1 class="page-title">Notification history</h1>
+<p class="subtle">Discord delivery results. Secrets and full webhook URLs are never stored here.</p>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Time</th><th>Category</th><th>Provider</th><th>Result</th><th>Retries</th><th>Detail</th></tr></thead>
+    <tbody>
+    {{range .Data.Notifications}}
+      <tr>
+        <td>{{$.FTime .Time}}</td>
+        <td>{{.Category}}</td>
+        <td>{{.Provider}}</td>
+        <td>{{if .Success}}<span class="badge ok"><span class="dot"></span>Sent</span>{{else if .Suppressed}}<span class="badge neutral"><span class="dot"></span>Suppressed</span>{{else}}<span class="badge bad"><span class="dot"></span>Failed</span>{{end}}</td>
+        <td>{{.RetryCount}}</td>
+        <td>{{if .Suppressed}}{{.SuppressReason}}{{else if .RedactedError}}{{.RedactedError}}{{else}}{{.ResultCode}}{{end}}</td>
+      </tr>
+    {{else}}
+      <tr><td colspan="6" class="subtle">No notifications yet.</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{template "page_end" .}}{{end}}

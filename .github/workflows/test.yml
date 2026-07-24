@@ -1,0 +1,22 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Download modules
+        run: go mod download
+      - name: Unit + integration tests
+        run: go test ./...
+      - name: Race detector (subset)
+        run: go test -race ./internal/monitoring/... ./internal/web/... ./internal/discord/...

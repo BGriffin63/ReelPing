@@ -1,0 +1,16 @@
+{{define "audit"}}{{template "page_start" .}}
+<h1 class="page-title">Audit log</h1>
+<p class="subtle">Administrative activity. Passwords, tokens, webhooks, cookies, and CSRF tokens are never recorded.</p>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Time</th><th>Action</th><th>Actor</th><th>Detail</th><th>Client</th></tr></thead>
+    <tbody>
+    {{range .Data.Events}}
+      <tr><td>{{$.FTime .Time}}</td><td>{{.Action}}</td><td>{{.Actor}}</td><td>{{.Detail}}</td><td class="mono">{{.IPTag}}</td></tr>
+    {{else}}
+      <tr><td colspan="5" class="subtle">No audit events yet.</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{template "page_end" .}}{{end}}

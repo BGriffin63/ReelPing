@@ -1,0 +1,21 @@
+# Keep the build context small and secret-free.
+.git/
+.github/
+.toolchain/
+dist/
+bin/
+config/
+*.db
+*.db.bak
+docs/
+tests/
+assets/*.png
+assets/*.ico
+*.md
+!README.md
+.gitignore
+coverage.out
+coverage.html
+scripts/
+compose.yaml
+templates/

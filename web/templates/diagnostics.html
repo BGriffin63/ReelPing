@@ -1,0 +1,42 @@
+{{define "diagnostics"}}{{template "page_start" .}}
+<h1 class="page-title">Diagnostics</h1>
+<div class="btn-row" style="margin-bottom:14px">
+  <a class="btn" href="/diagnostics/download">Download diagnostics (JSON)</a>
+</div>
+<div class="grid">
+  <div class="card">
+    <h2>Build</h2>
+    <dl class="kv">
+      <dt>Version</dt><dd>{{.Build.Version}}</dd>
+      <dt>Commit</dt><dd class="mono">{{.Build.Commit}}</dd>
+      <dt>Build date</dt><dd>{{.Build.Date}}</dd>
+      <dt>Go</dt><dd>{{.Build.GoVersion}}</dd>
+      <dt>Platform</dt><dd>{{.Build.OS}}/{{.Build.Arch}}</dd>
+      <dt>Schema</dt><dd>{{index .Data "schema_version"}}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h2>Runtime</h2>
+    <dl class="kv">
+      <dt>Config writable</dt><dd>{{yesno (index .Data "config_writable")}}</dd>
+      <dt>Monitoring state</dt><dd>{{.State.State}}</dd>
+      <dt>Last classification</dt><dd>{{.State.LastClassification}}</dd>
+      <dt>Plex token set</dt><dd>{{yesno (index .Data "plex_token_set")}}</dd>
+      <dt>Plex identity ok</dt><dd>{{yesno (index .Data "plex_identity_ok")}}</dd>
+      <dt>Discord set</dt><dd>{{yesno (index .Data "discord_set")}}</dd>
+      <dt>Time zone</dt><dd>{{index .Data "time_zone"}}</dd>
+    </dl>
+  </div>
+  <div class="card span-2">
+    <h2>Last check</h2>
+    <dl class="kv">
+      <dt>Classification</dt><dd>{{.Last.Classification}}</dd>
+      <dt>Stage</dt><dd>{{.Last.Stage}}</dd>
+      <dt>Latency</dt><dd>{{.Last.LatencyMillis}} ms</dd>
+      <dt>Detail</dt><dd>{{.Last.Detail}}</dd>
+      <dt>Host reachable</dt><dd>{{yesno .Last.HostReachable}}</dd>
+    </dl>
+    <p class="subtle" style="margin-top:12px">The diagnostics download never contains the Plex token, the Discord webhook, the password hash, session/CSRF secrets, cookies, or the database file.</p>
+  </div>
+</div>
+{{template "page_end" .}}{{end}}

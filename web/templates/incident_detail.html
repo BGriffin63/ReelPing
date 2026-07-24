@@ -1,0 +1,19 @@
+{{define "incident_detail"}}{{template "page_start" .}}
+<h1 class="page-title">Incident {{shortid .Data.Incident.ID}}</h1>
+<div class="card">
+  <dl class="kv">
+    <dt>Incident ID</dt><dd class="mono">{{.Data.Incident.ID}}</dd>
+    <dt>Service</dt><dd>{{.Data.Incident.Service}}</dd>
+    <dt>First failure</dt><dd>{{.FTime .Data.Incident.FirstFailureAt}}</dd>
+    <dt>Confirmed offline</dt><dd>{{.FTime .Data.Incident.ConfirmedOfflineAt}}</dd>
+    <dt>Recovered</dt><dd>{{if .Data.Incident.RecoveredAt}}{{.FTime .Data.Incident.RecoveredAt}}{{else}}Still open{{end}}</dd>
+    <dt>Duration</dt><dd>{{if .Data.Incident.Open}}ongoing{{else}}{{fdur .Data.Incident.DurationSeconds}}{{end}}</dd>
+    <dt>Classification</dt><dd>{{.Data.Incident.Classification}}</dd>
+    <dt>Failed checks</dt><dd>{{.Data.Incident.FailedChecks}}</dd>
+    <dt>Diagnostic</dt><dd>{{.Data.Incident.Diagnostic}}</dd>
+    <dt>Outage notified</dt><dd>{{yesno .Data.Incident.OutageNotified}}</dd>
+    <dt>Recovery notified</dt><dd>{{yesno .Data.Incident.RecoveryNotified}}</dd>
+  </dl>
+  <div class="btn-row"><a class="btn" href="/incidents">← Back to incidents</a></div>
+</div>
+{{template "page_end" .}}{{end}}

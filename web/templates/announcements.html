@@ -1,0 +1,32 @@
+{{define "announcements"}}{{template "page_start" .}}
+<h1 class="page-title">Announcements</h1>
+<div class="grid">
+  <form class="card span-2" method="post" action="/actions/announce">{{template "csrf" .}}<input type="hidden" name="idem" value="{{.Idem}}">
+    <h2>Custom announcement</h2>
+    <div class="form-row"><label>Title</label><input type="text" name="title" maxlength="200" required></div>
+    <div class="form-row"><label>Message</label><textarea name="message" maxlength="3500" required></textarea></div>
+    <div class="grid">
+      <div class="form-row">
+        <label>Style</label>
+        <select name="style">{{range .Data.Styles}}<option value="{{.Value}}">{{.Label}}</option>{{end}}</select>
+      </div>
+      {{template "mentionpicker" .}}
+    </div>
+    <button class="btn primary" type="submit" data-busy="Sending…">Send announcement</button>
+  </form>
+</div>
+
+<h2 style="margin-top:26px">Announcement history</h2>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Time</th><th>Type</th><th>Title</th><th>Mention</th><th>By</th></tr></thead>
+    <tbody>
+    {{range .Data.History}}
+      <tr><td>{{$.FTime .Time}}</td><td>{{.Type}}</td><td>{{.Title}}</td><td>{{.MentionPolicy}}</td><td>{{.Admin}}</td></tr>
+    {{else}}
+      <tr><td colspan="5" class="subtle">No announcements yet.</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{template "page_end" .}}{{end}}

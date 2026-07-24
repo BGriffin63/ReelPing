@@ -1,0 +1,103 @@
+{{define "dashboard"}}{{template "page_start" .}}
+<h1 class="page-title">Overview</h1>
+
+{{if not .Cfg.General.MonitoringOn}}
+<div class="flash warn">Monitoring is currently disabled.
+  <form method="post" action="/actions/monitoring" style="display:inline">{{template "csrf" .}}<input type="hidden" name="enable" value="1"><input type="hidden" name="idem" value="{{.Idem}}"><button class="btn" type="submit">Enable monitoring</button></form>
+</div>
+{{end}}
+
+<div class="grid">
+  <div class="card span-2">
+    <div class="status-hero {{.StatusHeroClass}}">
+      <span class="status-dot bg" aria-hidden="true"></span>
+      <div>
+        <div class="status-label">{{.Cfg.Plex.DisplayName}} — {{.StatusText}}</div>
+        <div class="subtle">{{.Last.Detail}}</div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <a class="btn warn" href="/maintenance">Schedule maintenance</a>
+      <a class="btn warn" href="/maintenance">Start maintenance now</a>
+      <a class="btn" href="/maintenance">Going offline</a>
+      <a class="btn primary" href="/maintenance">Service restored</a>
+      <a class="btn" href="/announcements">Custom announcement</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Status detail</h2>
+    <dl class="kv">
+      <dt>Plex URL</dt><dd class="mono">{{.Safe.Plex.BaseURL}}</dd>
+      <dt>Monitoring</dt><dd>{{if .Cfg.General.MonitoringOn}}<span class="badge ok"><span class="dot"></span>Enabled</span>{{else}}<span class="badge neutral"><span class="dot"></span>Disabled</span>{{end}}</dd>
+      <dt>Last success</dt><dd>{{.FTime .State.LastSuccessAt}}</dd>
+      <dt>Last failure</dt><dd>{{.FTime .State.LastFailureAt}}</dd>
+      <dt>Last latency</dt><dd>{{.State.LastLatencyMillis}} ms</dd>
+      <dt>Consecutive failures</dt><dd>{{.State.ConsecutiveFailures}}</dd>
+      <dt>Consecutive successes</dt><dd>{{.State.ConsecutiveSuccesses}}</dd>
+      <dt>Est. outage confirm</dt><dd>~{{.Data.ConfirmSeconds}}s</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Plex integration</h2>
+    <dl class="kv">
+      <dt>Token configured</dt><dd>{{yesno .Safe.Plex.TokenConfigured}}</dd>
+      <dt>Identity verified</dt><dd>{{yesno .State.IdentityVerified}}</dd>
+      <dt>Server name</dt><dd>{{if .Safe.Plex.CachedServerName}}{{.Safe.Plex.CachedServerName}}{{else}}—{{end}}</dd>
+      {{if .State.StreamCountKnown}}<dt>Active streams</dt><dd>{{.State.StreamCount}}</dd>{{end}}
+      <dt>Last check type</dt><dd>{{.State.LastClassification}}</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Monitoring</h2>
+    <dl class="kv">
+      <dt>Preset</dt><dd>{{upper .Data.Preset}}</dd>
+      <dt>Check interval</dt><dd>{{.Cfg.Monitoring.CheckIntervalSeconds}}s</dd>
+      <dt>Request timeout</dt><dd>{{.Cfg.Monitoring.TimeoutSeconds}}s</dd>
+      <dt>Failure threshold</dt><dd>{{.Cfg.Monitoring.FailureThreshold}}</dd>
+      <dt>Recovery threshold</dt><dd>{{.Cfg.Monitoring.RecoveryThreshold}}</dd>
+      <dt>Startup stabilization</dt><dd>{{.Cfg.Monitoring.StabilizationSeconds}}s</dd>
+      <dt>Host diagnostics</dt><dd>{{yesno .Cfg.Monitoring.SupplementalHostDiag}}</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Discord</h2>
+    <dl class="kv">
+      <dt>Webhook</dt><dd>{{if .Safe.Discord.WebhookConfigured}}<span class="badge ok"><span class="dot"></span>Configured {{.Safe.Discord.WebhookHint}}</span>{{else}}<span class="badge bad"><span class="dot"></span>Not set</span>{{end}}</dd>
+      <dt>Default mention</dt><dd>{{.Safe.Discord.DefaultMention}}</dd>
+      <dt>Auto outage alert</dt><dd>{{yesno .Cfg.Monitoring.AutoOutageNotify}}</dd>
+      <dt>Auto recovery alert</dt><dd>{{yesno .Cfg.Monitoring.AutoRecoveryNotify}}</dd>
+    </dl>
+    <div class="btn-row"><a class="btn" href="/settings#discord">Discord settings</a></div>
+  </div>
+
+  {{if .Data.HasIncident}}
+  <div class="card span-2" style="border-color:var(--offline)">
+    <h2>🔴 Current incident</h2>
+    <dl class="kv">
+      <dt>Incident ID</dt><dd class="mono">{{shortid .Data.ActiveIncident.ID}}</dd>
+      <dt>First failure</dt><dd>{{.FTime .Data.ActiveIncident.FirstFailureAt}}</dd>
+      <dt>Confirmed offline</dt><dd>{{.FTime .Data.ActiveIncident.ConfirmedOfflineAt}}</dd>
+      <dt>Duration</dt><dd>{{.Data.IncidentDuration}}</dd>
+      <dt>Classification</dt><dd>{{.Data.ActiveIncident.Classification}}</dd>
+      <dt>Outage notified</dt><dd>{{yesno .Data.ActiveIncident.OutageNotified}}</dd>
+    </dl>
+  </div>
+  {{end}}
+
+  {{if .Data.HasMaintenance}}
+  <div class="card span-2" style="border-color:var(--maintenance)">
+    <h2>🟡 Maintenance in progress</h2>
+    <dl class="kv">
+      <dt>Title</dt><dd>{{.Data.ActiveMaintenance.Title}}</dd>
+      <dt>Reason</dt><dd>{{if .Data.ActiveMaintenance.Reason}}{{.Data.ActiveMaintenance.Reason}}{{else}}—{{end}}</dd>
+      {{if .Data.ActiveMaintenance.EstimatedEnd}}<dt>Estimated return</dt><dd>{{.FTime .Data.ActiveMaintenance.EstimatedEnd}}</dd>{{end}}
+    </dl>
+    <div class="btn-row"><a class="btn" href="/maintenance">Manage maintenance</a></div>
+  </div>
+  {{end}}
+</div>
+{{template "page_end" .}}{{end}}

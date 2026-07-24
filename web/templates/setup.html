@@ -1,0 +1,136 @@
+{{define "setup"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Set up ReelPing</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="app-header">
+  <span class="brand"><img src="/static/reelping.svg" alt="" width="30" height="30"> ReelPing setup</span>
+</header>
+<main>
+<h1 class="page-title">Welcome — let's get you set up</h1>
+<p class="subtle">ReelPing watches your media server and keeps your Discord community informed. This runs once.</p>
+{{if .Flash}}<div class="flash {{.Flash.Kind}}">{{.Flash.Message}}</div>{{end}}
+
+<form method="post" action="/setup">
+  <div class="card span-2">
+    <h2>1. Administrator account</h2>
+    <p class="subtle">There is no default username or password. Create your admin login now.</p>
+    <div class="grid">
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required>
+      </div>
+      <div class="form-row">
+        <label for="password">Password <span class="hint">At least 12 characters. A passphrase works well.</span></label>
+        <input type="password" id="password" name="password" autocomplete="new-password" data-pw-meter required>
+        <div class="meter" data-pw-bar><span></span></div>
+        <div class="subtle" data-pw-label></div>
+      </div>
+      <div class="form-row">
+        <label for="confirm_password">Confirm password</label>
+        <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-2" style="margin-top:16px">
+    <h2>2. Plex server connection</h2>
+    <p class="subtle">Enter the network address ReelPing should use to reach Plex. Plex may run in Docker, a VM, another NAS, or another server — ReelPing only needs a URL it can reach.</p>
+    <div class="grid">
+      <div class="form-row">
+        <label for="plex_display_name">Display name</label>
+        <input type="text" id="plex_display_name" name="plex_display_name" value="Plex">
+      </div>
+      <div class="form-row">
+        <label for="plex_url">Plex base URL <span class="hint">e.g. http://192.168.1.10:32400 or https://plex.example.com</span></label>
+        <input type="url" id="plex_url" name="plex_url" placeholder="http://192.168.1.10:32400">
+      </div>
+      <div class="form-row">
+        <label for="plex_token">Plex token (optional) <span class="hint">Enables identity checks and stream counts. Not required for basic monitoring.</span></label>
+        <input type="password" id="plex_token" name="plex_token" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label for="plex_machine_id">Expected machine identifier (optional)</label>
+        <input type="text" id="plex_machine_id" name="plex_machine_id">
+      </div>
+      <div class="form-row">
+        <label for="plex_timeout">Request timeout (seconds)</label>
+        <input type="number" id="plex_timeout" name="plex_timeout" value="5" min="1" max="60">
+      </div>
+      <div class="form-row">
+        <label class="checkbox"><input type="checkbox" name="verify_tls" checked> Verify TLS certificate (recommended for HTTPS)</label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn" data-test-endpoint="/setup/test/plex" data-test-output="#plex-test">Test connection</button>
+    </div>
+    <div id="plex-test" class="subtle" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card span-2" style="margin-top:16px">
+    <h2>3. Discord</h2>
+    <p class="subtle">ReelPing uses a Discord incoming webhook (no bot required). Paste your channel's webhook URL.</p>
+    <div class="grid">
+      <div class="form-row">
+        <label for="discord_webhook">Webhook URL</label>
+        <input type="url" id="discord_webhook" name="discord_webhook" placeholder="https://discord.com/api/webhooks/...">
+      </div>
+      <div class="form-row">
+        <label for="discord_username">Webhook display name (optional)</label>
+        <input type="text" id="discord_username" name="discord_username" placeholder="ReelPing">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn" data-test-endpoint="/setup/test/discord" data-test-output="#discord-test">Send test message</button>
+    </div>
+    <div id="discord-test" class="subtle" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card span-2" style="margin-top:16px">
+    <h2>4. Monitoring</h2>
+    <div class="grid">
+      <div class="form-row">
+        <label for="preset">Preset</label>
+        <select id="preset" name="preset">
+          {{range $k := .Data.PresetOrder}}{{if ne $k "custom"}}{{with index $.Data.Presets $k}}
+          <option value="{{.Name}}" {{if eq .Name "balanced"}}selected{{end}}>{{.Label}} — {{.Description}}</option>
+          {{end}}{{else}}<option value="custom">Custom</option>{{end}}{{end}}
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="time_zone">Time zone</label>
+        <select id="time_zone" name="time_zone">
+          {{range .Data.TimeZones}}<option value="{{.}}" {{if eq . "UTC"}}selected{{end}}>{{.}}</option>{{end}}
+        </select>
+      </div>
+    </div>
+    <fieldset>
+      <legend>Custom thresholds (only used with the Custom preset)</legend>
+      <div class="grid">
+        <div class="form-row"><label>Check interval (s)</label><input type="number" name="check_interval" value="20" min="10"></div>
+        <div class="form-row"><label>Request timeout (s)</label><input type="number" name="request_timeout" value="5" min="1"></div>
+        <div class="form-row"><label>Failures before outage</label><input type="number" name="failure_threshold" value="3" min="2"></div>
+        <div class="form-row"><label>Successes before recovery</label><input type="number" name="recovery_threshold" value="2" min="1"></div>
+      </div>
+      <p class="subtle">With Balanced defaults, an outage is confirmed in about one minute (interval × failure threshold).</p>
+    </fieldset>
+  </div>
+
+  <div class="card span-2" style="margin-top:16px">
+    <h2>5. Finish</h2>
+    <label class="checkbox"><input type="checkbox" name="enable_monitoring" checked> Enable monitoring now (requires a Plex URL)</label>
+    <div class="btn-row" style="margin-top:14px">
+      <button type="submit" class="btn primary" data-busy="Setting up…">Complete setup</button>
+    </div>
+  </div>
+</form>
+</main>
+<script src="/static/app.js" nonce="{{.Nonce}}"></script>
+</body>
+</html>{{end}}

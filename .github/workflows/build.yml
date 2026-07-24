@@ -1,0 +1,38 @@
+name: build
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: reelping:ci
+          platforms: linux/amd64
+          build-args: |
+            VERSION=ci
+            COMMIT=${{ github.sha }}
+      - name: Container starts and is healthy
+        run: |
+          docker run -d --name reelping -p 8080:8080 -v "$PWD/ci-config:/config" reelping:ci
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8080/healthz >/dev/null; then echo "healthy"; ok=1; break; fi
+            sleep 1
+          done
+          docker logs reelping || true
+          test "${ok:-0}" = "1"
+      - name: Healthcheck subcommand exits 0
+        run: docker exec reelping /reelping -healthcheck
+      - name: Cleanup
+        if: always()
+        run: docker rm -f reelping || true

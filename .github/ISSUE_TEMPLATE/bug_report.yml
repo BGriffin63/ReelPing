@@ -1,0 +1,68 @@
+name: Bug report
+description: Report a problem with ReelPing
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. **Never paste your Plex token or Discord
+        webhook URL** — redact secrets before sharing logs or diagnostics.
+  - type: input
+    id: version
+    attributes:
+      label: ReelPing version
+      placeholder: e.g. 0.5.0-beta (see Diagnostics)
+    validations:
+      required: true
+  - type: dropdown
+    id: host
+    attributes:
+      label: Where is ReelPing running?
+      options:
+        - Unraid (Docker)
+        - Docker / Docker Compose (other host)
+        - Built from source
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: plexhost
+    attributes:
+      label: Where is Plex running?
+      options:
+        - Unraid Docker container
+        - Docker on another host
+        - Windows VM
+        - Linux VM
+        - Directly on Windows/Linux
+        - Another NAS / server
+        - Behind a reverse proxy
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you see instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs / diagnostics
+      description: Attach the diagnostics download (it excludes secrets) if relevant.
+      render: shell
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have removed any secrets (Plex token, Discord webhook) from this report.
+          required: true

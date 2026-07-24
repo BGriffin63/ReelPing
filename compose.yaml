@@ -1,0 +1,33 @@
+# ReelPing — Docker Compose example.
+#
+# ReelPing is an independent community project and is not affiliated with or
+# endorsed by Plex, Inc., Discord Inc., or Lime Technology, Inc.
+#
+# Secrets (Plex token, Discord webhook) are NOT set here — you enter them in the
+# authenticated ReelPing web UI after first launch.
+services:
+  reelping:
+    image: ghcr.io/BGriffin63/reelping:latest
+    # To build locally instead of pulling, comment out `image:` above and
+    # uncomment the next two lines:
+    # build:
+    #   context: .
+    container_name: reelping
+    restart: unless-stopped
+    ports:
+      - "8787:8080"        # host:container — open http://<host>:8787
+    volumes:
+      - ./config:/config   # persistent data (database, settings)
+    environment:
+      - TZ=UTC             # set to your local time zone, e.g. America/New_York
+    healthcheck:
+      test: ["CMD", "/reelping", "-healthcheck"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    # ReelPing needs NO privileged mode, NO Docker socket, NO host networking,
+    # and NO access to Plex's host, config, or media. It reaches Plex purely
+    # over the network address you configure in the web UI.
+    security_opt:
+      - no-new-privileges:true

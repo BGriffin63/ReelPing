@@ -1,0 +1,19 @@
+{{define "login"}}{{template "auth_start" .}}
+<h1 style="text-align:center;font-size:1.3rem;margin:0 0 16px">Sign in</h1>
+<div class="card">
+  <form method="post" action="/login" data-no-double="off">
+    <div class="form-row">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" autocomplete="username" autofocus required>
+    </div>
+    <div class="form-row">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn primary" style="width:100%">Sign in</button>
+    </div>
+  </form>
+</div>
+<p class="subtle" style="text-align:center;margin-top:14px">Forgot your password? See the local recovery procedure in the documentation.</p>
+{{template "auth_end" .}}{{end}}

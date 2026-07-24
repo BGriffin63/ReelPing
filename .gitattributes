@@ -1,0 +1,11 @@
+# Normalize line endings: store text as LF in the repo and check out LF, so
+# shell scripts and Go files work identically on Linux, macOS, and Windows.
+* text=auto eol=lf
+
+# Treat generated raster assets as binary (never line-ending converted).
+*.png binary
+*.ico binary
+
+# Go module files
+go.mod text eol=lf
+go.sum text eol=lf

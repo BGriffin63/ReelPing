@@ -1,0 +1,30 @@
+# Build output
+/dist/
+/bin/
+reelping
+reelping.exe
+*.test
+*.out
+
+# Local runtime data
+/config/
+*.db
+*.db.bak
+*.db.tmp
+
+# Go
+/vendor/
+go.work
+go.work.sum
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Toolchain / scratch
+.toolchain/
+coverage.out
+coverage.html

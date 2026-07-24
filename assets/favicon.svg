@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="ReelPing">
+  <title>ReelPing</title>
+  <rect width="64" height="64" rx="14" fill="#12161c"/>
+  <g fill="none" stroke="#17b8b8" stroke-width="4.5">
+    <circle cx="28" cy="34" r="16"/>
+  </g>
+  <circle cx="28" cy="34" r="4.4" fill="#17b8b8"/>
+  <g fill="#17b8b8">
+    <circle cx="28" cy="23" r="2.8"/>
+    <circle cx="38" cy="34" r="2.8"/>
+    <circle cx="28" cy="45" r="2.8"/>
+    <circle cx="18" cy="34" r="2.8"/>
+  </g>
+  <g fill="none" stroke="#0f9d9d" stroke-width="4.5" stroke-linecap="round">
+    <path d="M46 30 A15 15 0 0 0 32 16"/>
+  </g>
+  <circle cx="48" cy="46" r="6" fill="#2ECC71" stroke="#12161c" stroke-width="2.5"/>
+</svg>

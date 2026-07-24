@@ -1,0 +1,99 @@
+{{define "maintenance"}}{{template "page_start" .}}
+<h1 class="page-title">Maintenance</h1>
+
+{{if .Data.HasMaintenance}}
+<div class="card span-2" style="border-color:var(--maintenance);margin-bottom:16px">
+  <h2>🟡 Maintenance is active</h2>
+  <dl class="kv">
+    <dt>Title</dt><dd>{{.Data.ActiveMaintenance.Title}}</dd>
+    <dt>Reason</dt><dd>{{if .Data.ActiveMaintenance.Reason}}{{.Data.ActiveMaintenance.Reason}}{{else}}—{{end}}</dd>
+    <dt>Started</dt><dd>{{.FTime .Data.ActiveMaintenance.ActualStart}}</dd>
+    <dt>Estimated return</dt><dd>{{.FTime .Data.ActiveMaintenance.EstimatedEnd}}</dd>
+    <dt>Plex reachable now</dt><dd>{{if .Last.OK}}Yes{{else}}No{{end}}</dd>
+  </dl>
+  <div class="grid" style="margin-top:12px">
+    <form class="card" method="post" action="/actions/maintenance/delay">{{template "csrf" .}}<input type="hidden" name="idem" value="{{.Idem}}">
+      <h2>Send delay update</h2>
+      <div class="form-row"><label>Updated estimated return</label><input type="datetime-local" name="estimated_end"></div>
+      <div class="form-row"><label>Reason (optional)</label><input type="text" name="reason"></div>
+      {{template "mentionpicker" .}}
+      <button class="btn warn" type="submit">Send delay update</button>
+    </form>
+    <form class="card" method="post" action="/actions/maintenance/end" data-confirm="End maintenance and resume normal monitoring?">{{template "csrf" .}}
+      <h2>End maintenance</h2>
+      <p class="subtle">Resumes normal outage detection. If Plex is still down, a real outage can then be detected.</p>
+      <button class="btn" type="submit">End maintenance</button>
+    </form>
+  </div>
+</div>
+{{end}}
+
+<div class="grid">
+  <form class="card" method="post" action="/actions/maintenance/start" data-confirm="Start maintenance now and announce it to Discord?">{{template "csrf" .}}<input type="hidden" name="idem" value="{{.Idem}}">
+    <h2>Start maintenance now</h2>
+    {{if .Data.StreamCountKnown}}<p class="flash warn">{{.Data.StreamCount}} active stream(s) currently detected.</p>{{end}}
+    <div class="form-row"><label>Title</label><input type="text" name="title" value="Scheduled Plex maintenance"></div>
+    <div class="form-row"><label>Reason</label><textarea name="reason" placeholder="Server updates and restart"></textarea></div>
+    <div class="form-row"><label>Estimated duration (minutes)</label><input type="number" name="duration_min" min="1" value="30"></div>
+    <label class="checkbox"><input type="checkbox" name="auto_recovery"> Announce automatically when Plex returns</label>
+    <label class="checkbox"><input type="checkbox" name="include_streams"> Include active stream count</label>
+    {{template "mentionpicker" .}}
+    <button class="btn warn" type="submit">Start &amp; announce</button>
+  </form>
+
+  <form class="card" method="post" action="/actions/maintenance/schedule">{{template "csrf" .}}<input type="hidden" name="idem" value="{{.Idem}}">
+    <h2>Schedule maintenance</h2>
+    <div class="form-row"><label>Title</label><input type="text" name="title" value="Scheduled Plex maintenance"></div>
+    <div class="form-row"><label>Reason</label><textarea name="reason"></textarea></div>
+    <div class="form-row"><label>Scheduled start</label><input type="datetime-local" name="start"></div>
+    <div class="form-row"><label>Estimated end</label><input type="datetime-local" name="estimated_end"></div>
+    <label class="checkbox"><input type="checkbox" name="announce_now" checked> Send the announcement now</label>
+    <label class="checkbox"><input type="checkbox" name="auto_recovery"> Announce automatically when Plex returns</label>
+    {{template "mentionpicker" .}}
+    <button class="btn" type="submit">Schedule</button>
+  </form>
+
+  <form class="card" method="post" action="/actions/maintenance/offline" data-confirm="Announce that Plex is going offline?">{{template "csrf" .}}<input type="hidden" name="idem" value="{{.Idem}}">
+    <h2>Going offline now</h2>
+    <p class="subtle">For an intentional, unscheduled shutdown. Enters maintenance mode before Plex goes down.</p>
+    <div class="form-row"><label>Reason (optional)</label><input type="text" name="reason"></div>
+    <div class="form-row"><label>Estimated duration (minutes)</label><input type="number" name="duration_min" min="1"></div>
+    {{template "mentionpicker" .}}
+    <button class="btn" type="submit">Announce &amp; go offline</button>
+  </form>
+
+  <form class="card" method="post" action="/actions/restore">{{template "csrf" .}}<input type="hidden" name="idem" value="{{.Idem}}">
+    <h2>Service restored</h2>
+    {{if .Last.OK}}<p class="flash ok">ReelPing currently sees Plex as reachable.</p>
+    {{else}}<p class="flash warn">ReelPing cannot currently reach Plex. Tick override to announce anyway.</p>{{end}}
+    <label class="checkbox"><input type="checkbox" name="override"> Send even though Plex appears down</label>
+    {{template "mentionpicker" .}}
+    <button class="btn primary" type="submit">Announce restored</button>
+  </form>
+</div>
+
+<h2 style="margin-top:26px">Maintenance history</h2>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>Title</th><th>Kind</th><th>State</th><th>Started</th><th>Ended</th></tr></thead>
+    <tbody>
+    {{range .Data.History}}
+      <tr><td>{{.Title}}</td><td>{{.Kind}}</td><td>{{.State}}</td><td>{{$.FTime .ActualStart}}</td><td>{{$.FTime .ActualEnd}}</td></tr>
+    {{else}}
+      <tr><td colspan="5" class="subtle">No maintenance windows yet.</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{template "page_end" .}}{{end}}
+
+{{define "mentionpicker"}}
+<div class="form-row">
+  <label>Mention policy</label>
+  <select name="mention">
+    {{range .Data.Mentions}}<option value="{{.Value}}">{{.Label}}</option>{{end}}
+  </select>
+  <label class="hint">Role ID (only used with "Specific role")</label>
+  <input type="text" name="role_id" placeholder="Discord role ID" value="{{.Cfg.Discord.RoleID}}">
+</div>
+{{end}}

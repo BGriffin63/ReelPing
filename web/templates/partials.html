@@ -1,0 +1,76 @@
+{{define "page_start"}}<!doctype html>
+<html lang="en" {{if ne .Cfg.General.Theme "system"}}data-theme="{{.Cfg.General.Theme}}"{{end}}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{.Title}} · {{.Cfg.General.SiteTitle}}</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="app-header">
+  <span class="brand"><img src="/static/reelping.svg" alt="" width="30" height="30"> {{.Cfg.General.SiteTitle}}</span>
+  <span class="spacer"></span>
+  <span class="meta">
+    {{if .State.State}}<span class="badge {{.StatusBadgeClass}}"><span class="dot"></span>{{.StatusText}}</span>{{end}}
+    <div>{{.Username}} · {{.Cfg.General.TimeZone}}</div>
+  </span>
+</header>
+<nav class="tabs" aria-label="Primary">
+  <a href="/" class="{{if eq .Active "overview"}}active{{end}}">Overview</a>
+  <a href="/maintenance" class="{{if eq .Active "maintenance"}}active{{end}}">Maintenance</a>
+  <a href="/announcements" class="{{if eq .Active "announcements"}}active{{end}}">Announcements</a>
+  <a href="/incidents" class="{{if eq .Active "incidents"}}active{{end}}">Incidents</a>
+  <a href="/notifications" class="{{if eq .Active "notifications"}}active{{end}}">Notifications</a>
+  <a href="/audit" class="{{if eq .Active "audit"}}active{{end}}">Audit</a>
+  <a href="/settings" class="{{if eq .Active "settings"}}active{{end}}">Settings</a>
+  <a href="/diagnostics" class="{{if eq .Active "diagnostics"}}active{{end}}">Diagnostics</a>
+  <span class="spacer" style="flex:1"></span>
+  <a href="/logout" data-confirm="Sign out of ReelPing?">Log out</a>
+</nav>
+<main id="main">
+{{if .Flash}}<div class="flash {{.Flash.Kind}}">{{.Flash.Message}}</div>{{end}}
+{{end}}
+
+{{define "page_end"}}
+</main>
+<footer class="app-footer">
+  <p>{{.Cfg.General.SiteTitle}} {{.Build.Version}} · Keep your viewers in the loop.</p>
+  <p>ReelPing is an independent community project and is not affiliated with or endorsed by Plex, Inc., Discord Inc., or Lime Technology, Inc.</p>
+</footer>
+<script src="/static/app.js" nonce="{{.Nonce}}"></script>
+</body>
+</html>
+{{end}}
+
+{{define "csrf"}}<input type="hidden" name="csrf_token" value="{{.CSRF}}">{{end}}
+
+{{define "auth_start"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{.Title}} · {{.Cfg.General.SiteTitle}}</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="auth-shell">
+<div class="auth-card">
+<span class="brand"><img src="/static/reelping.svg" alt="" width="44" height="44"> ReelPing</span>
+{{if .Flash}}<div class="flash {{.Flash.Kind}}">{{.Flash.Message}}</div>{{end}}
+{{end}}
+
+{{define "auth_end"}}
+<footer style="margin-top:20px;text-align:center" class="subtle">
+  Keep your viewers in the loop.<br>
+  Independent project — not affiliated with Plex, Discord, or Unraid.
+</footer>
+</div></div>
+<script src="/static/app.js" nonce="{{.Nonce}}"></script>
+</body>
+</html>
+{{end}}

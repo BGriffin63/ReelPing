@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest an idea for ReelPing
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This does not require ReelPing to control Plex (start/stop/restart), which is out of scope for v1.
+        - label: This does not add telemetry, analytics, or developer-hosted calls.

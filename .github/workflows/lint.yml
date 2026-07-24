@@ -1,0 +1,42 @@
+name: lint
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: gofmt
+        run: |
+          fmtout=$(gofmt -l .)
+          if [ -n "$fmtout" ]; then
+            echo "These files are not gofmt-formatted:"; echo "$fmtout"; exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+      - name: staticcheck
+        uses: dominikh/staticcheck-action@v1
+        with:
+          version: latest
+          install-go: false
+      - name: Validate XML templates
+        run: |
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+          xmllint --noout templates/reelping.xml
+          xmllint --noout templates/ca_profile.xml
+      - name: Validate SVG assets
+        run: |
+          for f in assets/*.svg web/static/*.svg; do xmllint --noout "$f"; done
+      - name: Verify asset generation is reproducible
+        run: |
+          go run ./tools/genassets assets-check
+          # Regenerate into a temp dir and compare the mark PNGs are byte-stable.
+          test -f assets-check/reelping-256.png

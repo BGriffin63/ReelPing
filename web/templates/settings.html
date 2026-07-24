@@ -1,0 +1,145 @@
+{{define "settings"}}{{template "page_start" .}}
+<h1 class="page-title">Settings</h1>
+
+<div class="grid">
+  <!-- General -->
+  <form class="card" method="post" action="/settings/general" id="general">{{template "csrf" .}}
+    <h2>General</h2>
+    <div class="form-row"><label>Site title</label><input type="text" name="site_title" value="{{.Cfg.General.SiteTitle}}"></div>
+    <div class="form-row"><label>Time zone</label>
+      <select name="time_zone">{{range .Data.TimeZones}}<option value="{{.}}" {{if eq . $.Cfg.General.TimeZone}}selected{{end}}>{{.}}</option>{{end}}</select>
+    </div>
+    <div class="form-row"><label>Date format (Go layout)</label><input type="text" name="date_format" value="{{.Cfg.General.DateFormat}}"></div>
+    <div class="form-row"><label>Theme</label>
+      <select name="theme">{{range .Data.Themes}}<option value="{{.}}" {{if eq . (printf "%s" $.Cfg.General.Theme)}}selected{{end}}>{{.}}</option>{{end}}</select>
+    </div>
+    <fieldset><legend>Retention (days; 0 = keep)</legend>
+      <div class="grid">
+        <div class="form-row"><label>Announcements</label><input type="number" name="retention_announcements" value="{{.Cfg.General.RetentionDays.AnnouncementsDays}}" min="0"></div>
+        <div class="form-row"><label>Audit</label><input type="number" name="retention_audit" value="{{.Cfg.General.RetentionDays.AuditDays}}" min="0"></div>
+        <div class="form-row"><label>Notifications</label><input type="number" name="retention_notifications" value="{{.Cfg.General.RetentionDays.NotificationsDays}}" min="0"></div>
+      </div>
+    </fieldset>
+    <div class="form-row"><label>Trusted proxies <span class="hint">Comma-separated IPs/CIDRs. Leave blank if not behind a reverse proxy.</span></label>
+      <input type="text" name="trusted_proxies" value="{{range $i,$p := .Cfg.Security.TrustedProxies}}{{if $i}}, {{end}}{{$p}}{{end}}"></div>
+    <button class="btn primary" type="submit">Save general</button>
+  </form>
+
+  <!-- Plex -->
+  <form class="card" method="post" action="/settings/plex" id="plex">{{template "csrf" .}}
+    <h2>Plex</h2>
+    <div class="form-row"><label>Display name</label><input type="text" name="display_name" value="{{.Cfg.Plex.DisplayName}}"></div>
+    <div class="form-row"><label>Base URL</label><input type="url" name="base_url" value="{{.Cfg.Plex.BaseURL}}"></div>
+    <div class="form-row"><label>Request timeout (s)</label><input type="number" name="timeout" min="1" value="{{.Cfg.Plex.TimeoutSeconds}}"></div>
+    <div class="form-row"><label>Expected machine ID</label><input type="text" name="machine_id" value="{{.Cfg.Plex.ExpectedMachineID}}">
+      <label class="checkbox"><input type="checkbox" name="clear_machine_id"> Clear expected machine ID</label></div>
+    <label class="checkbox"><input type="checkbox" name="verify_tls" {{if .Cfg.Plex.VerifyTLS}}checked{{end}}> Verify TLS certificate</label>
+    <label class="checkbox"><input type="checkbox" name="session_integration" {{if .Cfg.Plex.SessionIntegration}}checked{{end}}> Enable active-session checks (needs token)</label>
+    <label class="checkbox"><input type="checkbox" name="include_stream_count" {{if .Cfg.Plex.IncludeStreamCount}}checked{{end}}> Allow including stream count in announcements</label>
+    <fieldset><legend>Token</legend>
+      <p class="subtle">Status: {{if .Safe.Plex.TokenConfigured}}<span class="badge ok"><span class="dot"></span>Configured</span>{{else}}<span class="badge neutral"><span class="dot"></span>Not set</span>{{end}}</p>
+      <div class="form-row"><label>Replace token</label><input type="password" name="token" autocomplete="off" placeholder="Leave blank to keep current"></div>
+      <label class="checkbox"><input type="checkbox" name="remove_token"> Remove token</label>
+    </fieldset>
+    <div class="btn-row">
+      <button class="btn primary" type="submit">Save Plex</button>
+      <button class="btn" type="button" data-test-endpoint="/api/test/plex" data-test-output="#plex-test">Test connection</button>
+    </div>
+    <div id="plex-test" class="subtle" style="margin-top:8px"></div>
+  </form>
+
+  <!-- Monitoring -->
+  <form class="card" method="post" action="/settings/monitoring" id="monitoring">{{template "csrf" .}}
+    <h2>Monitoring</h2>
+    <div class="form-row"><label>Preset</label>
+      <select name="preset">
+        {{range $k := .Data.PresetOrder}}{{if ne $k "custom"}}{{with index $.Data.Presets $k}}<option value="{{.Name}}" {{if eq .Name $.Cfg.Monitoring.Preset}}selected{{end}}>{{.Label}}</option>{{end}}{{else}}<option value="custom" {{if eq $.Cfg.Monitoring.Preset "custom"}}selected{{end}}>Custom</option>{{end}}{{end}}
+      </select>
+    </div>
+    <fieldset><legend>Custom thresholds</legend>
+      <div class="grid">
+        <div class="form-row"><label>Check interval (s)</label><input type="number" name="check_interval" min="10" value="{{.Cfg.Monitoring.CheckIntervalSeconds}}"></div>
+        <div class="form-row"><label>Request timeout (s)</label><input type="number" name="request_timeout" min="1" value="{{.Cfg.Monitoring.TimeoutSeconds}}"></div>
+        <div class="form-row"><label>Failures before outage</label><input type="number" name="failure_threshold" min="2" value="{{.Cfg.Monitoring.FailureThreshold}}"></div>
+        <div class="form-row"><label>Successes before recovery</label><input type="number" name="recovery_threshold" min="1" value="{{.Cfg.Monitoring.RecoveryThreshold}}"></div>
+      </div>
+    </fieldset>
+    <div class="grid">
+      <div class="form-row"><label>Startup stabilization (s)</label><input type="number" name="stabilization" min="0" value="{{.Cfg.Monitoring.StabilizationSeconds}}"></div>
+      <div class="form-row"><label>Notification cooldown (s)</label><input type="number" name="cooldown" min="0" value="{{.Cfg.Monitoring.CooldownSeconds}}"></div>
+      <div class="form-row"><label>Latency warning (ms)</label><input type="number" name="latency_warn" min="0" value="{{.Cfg.Monitoring.LatencyWarnMillis}}"></div>
+    </div>
+    <label class="checkbox"><input type="checkbox" name="supplemental_diag" {{if .Cfg.Monitoring.SupplementalHostDiag}}checked{{end}}> Enable supplemental host diagnostics</label>
+    <label class="checkbox"><input type="checkbox" name="degraded_enabled" {{if .Cfg.Monitoring.DegradedEnabled}}checked{{end}}> Track degraded state (latency)</label>
+    <button class="btn primary" type="submit">Save monitoring</button>
+  </form>
+
+  <!-- Discord -->
+  <form class="card" method="post" action="/settings/discord" id="discord">{{template "csrf" .}}
+    <h2>Discord</h2>
+    <p class="subtle">Status: {{if .Safe.Discord.WebhookConfigured}}<span class="badge ok"><span class="dot"></span>Configured {{.Safe.Discord.WebhookHint}}</span>{{else}}<span class="badge neutral"><span class="dot"></span>Not set</span>{{end}}</p>
+    <div class="form-row"><label>Replace webhook URL</label><input type="password" name="webhook" autocomplete="off" placeholder="Leave blank to keep current"></div>
+    <label class="checkbox"><input type="checkbox" name="remove_webhook"> Remove webhook</label>
+    <div class="form-row"><label>Display name override</label><input type="text" name="username" value="{{.Cfg.Discord.UsernameOverride}}"></div>
+    <div class="form-row"><label>Avatar URL</label><input type="url" name="avatar_url" value="{{.Cfg.Discord.AvatarURL}}"></div>
+    <div class="form-row"><label>Default manual mention</label>
+      <select name="default_mention">{{range .Data.Mentions}}<option value="{{.Value}}" {{if eq .Value $.Cfg.Discord.DefaultMention}}selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="form-row"><label>Role ID</label><input type="text" name="role_id" value="{{.Cfg.Discord.RoleID}}"></div>
+    <fieldset><legend>Automatic alerts</legend>
+      <label class="checkbox"><input type="checkbox" name="auto_outage" {{if .Cfg.Monitoring.AutoOutageNotify}}checked{{end}}> Send automatic outage alerts</label>
+      <label class="checkbox"><input type="checkbox" name="auto_recovery" {{if .Cfg.Monitoring.AutoRecoveryNotify}}checked{{end}}> Send automatic recovery alerts</label>
+      <div class="form-row"><label>Outage mention</label>
+        <select name="auto_outage_mention">{{range .Data.Mentions}}<option value="{{.Value}}" {{if eq .Value $.Cfg.Monitoring.AutoOutageMention}}selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+      <div class="form-row"><label>Recovery mention</label>
+        <select name="auto_recovery_mention">{{range .Data.Mentions}}<option value="{{.Value}}" {{if eq .Value $.Cfg.Monitoring.AutoRecoveryMention}}selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    </fieldset>
+    <div class="btn-row">
+      <button class="btn primary" type="submit">Save Discord</button>
+      <button class="btn" type="button" data-test-endpoint="/api/test/discord" data-test-output="#discord-test">Send test</button>
+    </div>
+    <div id="discord-test" class="subtle" style="margin-top:8px"></div>
+  </form>
+
+  <!-- Security -->
+  <form class="card" method="post" action="/settings/security/password" id="security">{{template "csrf" .}}
+    <h2>Security — change password</h2>
+    <div class="form-row"><label>Current password</label><input type="password" name="current_password" autocomplete="current-password" required></div>
+    <div class="form-row"><label>New password</label><input type="password" name="new_password" autocomplete="new-password" data-pw-meter required>
+      <div class="meter" data-pw-bar><span></span></div><div class="subtle" data-pw-label></div></div>
+    <div class="form-row"><label>Confirm new password</label><input type="password" name="confirm_password" autocomplete="new-password" required></div>
+    <button class="btn primary" type="submit">Change password</button>
+  </form>
+
+  <div class="card">
+    <h2>Active sessions</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Created</th><th>Last seen</th><th>Client</th></tr></thead>
+      <tbody>
+      {{range .Data.Sessions}}<tr><td>{{$.FTime .CreatedAt}}</td><td>{{$.FTime .LastSeenAt}}</td><td class="mono">{{.IPTag}}</td></tr>{{else}}<tr><td colspan="3" class="subtle">None</td></tr>{{end}}
+      </tbody>
+    </table></div>
+    <form method="post" action="/settings/security/sessions" data-confirm="Sign out all other sessions?" style="margin-top:12px">{{template "csrf" .}}
+      <button class="btn" type="submit">Sign out other sessions</button>
+    </form>
+  </div>
+
+  <!-- Data -->
+  <div class="card span-2" id="data">
+    <h2>Data</h2>
+    <div class="btn-row">
+      <a class="btn" href="/settings/data/backup">Download backup</a>
+      <a class="btn" href="/incidents/export?format=json">Export incidents (JSON)</a>
+      <a class="btn" href="/diagnostics/download">Download diagnostics</a>
+    </div>
+    <fieldset style="margin-top:14px"><legend>Clear history</legend>
+      <form method="post" action="/settings/data/clear" data-confirm="Clear the selected history? This cannot be undone.">{{template "csrf" .}}
+        <div class="form-row"><label>Which history</label>
+          <select name="which"><option value="announcements">Announcements</option><option value="notifications">Notifications</option><option value="audit">Audit</option><option value="incidents">Incidents</option></select>
+        </div>
+        <button class="btn danger" type="submit">Clear selected history</button>
+      </form>
+    </fieldset>
+    <p class="subtle" style="margin-top:12px">The backup file contains your configuration (including secrets). Store it like a password vault. Restore is documented in the manual.</p>
+  </div>
+</div>
+{{template "page_end" .}}{{end}}

@@ -1,0 +1,25 @@
+name: Support request
+description: Get help setting up or running ReelPing
+labels: ["support"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a support request, please check
+        [docs/TROUBLESHOOTING.md](../../docs/TROUBLESHOOTING.md).
+        **Never share your Plex token or Discord webhook URL.**
+  - type: textarea
+    id: question
+    attributes:
+      label: What do you need help with?
+    validations:
+      required: true
+  - type: input
+    id: plexurl
+    attributes:
+      label: How do you reach Plex? (redact any host/IP you consider sensitive)
+      placeholder: e.g. http://LAN_IP:32400 or https://plex.example.com
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you already tried?

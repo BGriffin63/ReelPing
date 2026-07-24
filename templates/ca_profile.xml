@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<Profile>
+  <Author>YOUR_DISPLAY_NAME</Author>
+  <Repository>https://github.com/BGriffin63/reelping</Repository>
+  <Project>https://github.com/BGriffin63/reelping</Project>
+  <Support>YOUR_SUPPORT_THREAD_URL</Support>
+  <Icon>https://raw.githubusercontent.com/BGriffin63/reelping/main/assets/reelping-256.png</Icon>
+  <ProfileImage>https://raw.githubusercontent.com/BGriffin63/reelping/main/assets/reelping-256.png</ProfileImage>
+  <Description>Maintainer of ReelPing — a lightweight, self-hosted Plex status monitor and Discord notifier for Unraid. Independent community project; not affiliated with Plex, Discord, or Lime Technology.</Description>
+</Profile>
