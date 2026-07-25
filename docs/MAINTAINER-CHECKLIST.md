@@ -15,7 +15,7 @@ Search the repository for each token and replace it:
 | `YOUR_PROJECT_URL` | docs (generic) | Your project homepage/repo URL |
 | `YOUR_CONTAINER_REGISTRY` | docs (generic) | Your registry, e.g. `ghcr.io/<you>` |
 
-> The concrete references to `BGriffin63` and `ghcr.io/BGriffin63/reelping` match
+> The concrete references to `BGriffin63` and `ghcr.io/bgriffin63/reelping` match
 > the suggested image name. If you fork under a different owner, update:
 > `go.mod` module path is fine to keep, but change the **Repository**,
 > **Registry**, **Icon**, **TemplateURL**, and **Project** URLs in

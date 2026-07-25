@@ -22,7 +22,7 @@ Until ReelPing is listed in CA, you can add it manually:
 
 1. **Apps → (gear) → Manage Repositories** and add the template repository, **or**
 2. Docker tab → **Add Container**, set:
-   - **Repository:** `ghcr.io/BGriffin63/reelping:latest`
+   - **Repository:** `ghcr.io/bgriffin63/reelping:latest`
    - **Network Type:** `Bridge`
    - **WebUI:** `http://[IP]:[PORT:8080]`
    - **Port:** container `8080` → host `8787` (TCP)

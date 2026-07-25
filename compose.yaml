@@ -7,7 +7,7 @@
 # authenticated ReelPing web UI after first launch.
 services:
   reelping:
-    image: ghcr.io/BGriffin63/reelping:latest
+    image: ghcr.io/bgriffin63/reelping:latest
     # To build locally instead of pulling, comment out `image:` above and
     # uncomment the next two lines:
     # build:

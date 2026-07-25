@@ -36,9 +36,9 @@ Pre-release tags (containing `-`) never get the `latest` Docker tag.
 
 ## What gets published
 
-- `ghcr.io/BGriffin63/reelping:<version>`
-- `ghcr.io/BGriffin63/reelping:<major.minor>`
-- `ghcr.io/BGriffin63/reelping:latest` (stable only)
+- `ghcr.io/bgriffin63/reelping:<version>`
+- `ghcr.io/bgriffin63/reelping:<major.minor>`
+- `ghcr.io/bgriffin63/reelping:latest` (stable only)
 - Image digest, SBOM (SPDX), source archive (GitHub auto), changelog/notes.
 
 ## Database migrations

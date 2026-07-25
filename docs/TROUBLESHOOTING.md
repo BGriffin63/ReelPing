@@ -88,7 +88,7 @@ Discord config or history):
 
 ```bash
 # Unraid: stop the container, then run once against the same appdata:
-docker run --rm -v /mnt/user/appdata/reelping:/config ghcr.io/BGriffin63/reelping:latest -reset-admin
+docker run --rm -v /mnt/user/appdata/reelping:/config ghcr.io/bgriffin63/reelping:latest -reset-admin
 # Compose:
 docker compose run --rm reelping -reset-admin
 ```

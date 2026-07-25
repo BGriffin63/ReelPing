@@ -136,7 +136,7 @@ the template.
 
 ```bash
 mkdir reelping && cd reelping
-curl -O https://raw.githubusercontent.com/BGriffin63/reelping/main/compose.yaml
+curl -O https://raw.githubusercontent.com/BGriffin63/ReelPing/main/compose.yaml
 docker compose up -d
 ```
 

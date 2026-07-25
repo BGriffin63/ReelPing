@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-IMAGE="${IMAGE:-ghcr.io/BGriffin63/reelping}"
+IMAGE="${IMAGE:-ghcr.io/bgriffin63/reelping}"
 VERSION="${VERSION:-$(cat VERSION 2>/dev/null || echo dev)}"
 COMMIT="${COMMIT:-$(git rev-parse --short HEAD 2>/dev/null || echo unknown)}"
 DATE="${DATE:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
