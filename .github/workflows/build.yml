@@ -24,9 +24,12 @@ jobs:
             COMMIT=${{ github.sha }}
       - name: Container starts and is healthy
         run: |
-          docker run -d --name reelping -p 8080:8080 -v "$PWD/ci-config:/config" reelping:ci
+          # /config must be writable by the container's non-root user (99:100).
+          mkdir -p ci-config
+          sudo chown -R 99:100 ci-config
+          docker run -d --name reelping -p 8787:8787 -v "$PWD/ci-config:/config" reelping:ci
           for i in $(seq 1 20); do
-            if curl -fsS http://127.0.0.1:8080/healthz >/dev/null; then echo "healthy"; ok=1; break; fi
+            if curl -fsS http://127.0.0.1:8787/healthz >/dev/null; then echo "healthy"; ok=1; break; fi
             sleep 1
           done
           docker logs reelping || true

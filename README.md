@@ -80,11 +80,14 @@ See [docs/PLEX-DEPLOYMENT-TYPES.md](docs/PLEX-DEPLOYMENT-TYPES.md).
 
 ## Screenshots
 
-> Screenshots are placeholders until the first tagged beta build is published.
+The web UI includes a first-run setup wizard, a status dashboard (live Plex
+state, monitoring config, Discord config, and any active incident/maintenance),
+one-click maintenance/announcement controls, and history views for incidents,
+notifications, and the audit log.
 
-| Setup wizard | Dashboard | Maintenance |
-| --- | --- | --- |
-| _placeholder_ | _placeholder_ | _placeholder_ |
+> To add screenshots to this README and the Unraid listing, drop PNGs into
+> `docs/screenshots/` and reference them here (and optionally add `<Screenshot>`
+> tags to `templates/reelping.xml`).
 
 ## How outage detection works (the one-minute story)
 

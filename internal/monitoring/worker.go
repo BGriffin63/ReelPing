@@ -77,8 +77,6 @@ func (w *Worker) Run(ctx context.Context) {
 	w.running = true
 	w.mu.Unlock()
 
-	// On startup, if monitoring is off, record disabled and idle-wait.
-	interval := time.Duration(cfg.Monitoring.CheckIntervalSeconds) * time.Second
 	timer := time.NewTimer(0) // fire immediately for the first check
 	defer timer.Stop()
 
@@ -96,7 +94,7 @@ func (w *Worker) Run(ctx context.Context) {
 			w.tick(ctx, cfg)
 		}
 
-		interval = time.Duration(cfg.Monitoring.CheckIntervalSeconds) * time.Second
+		interval := time.Duration(cfg.Monitoring.CheckIntervalSeconds) * time.Second
 		if interval < 5*time.Second {
 			interval = 5 * time.Second
 		}

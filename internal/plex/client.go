@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/BGriffin63/reelping/internal/security"
@@ -105,9 +104,4 @@ func (c *Client) httpClient() *http.Client {
 func (c *Client) endpoint(path string) string {
 	base := c.opts.BaseURL
 	return base + path
-}
-
-func portInt(p string) int {
-	n, _ := strconv.Atoi(p)
-	return n
 }

@@ -161,11 +161,6 @@ func writeICO(path string, imgs []*image.RGBA) error {
 	binary.Write(&buf, binary.LittleEndian, uint16(1)) // type: icon
 	binary.Write(&buf, binary.LittleEndian, uint16(len(imgs)))
 
-	type entry struct {
-		data []byte
-		w, h int
-	}
-	var entries []entry
 	offset := 6 + 16*len(imgs)
 	var body bytes.Buffer
 	for _, im := range imgs {
@@ -193,7 +188,6 @@ func writeICO(path string, imgs []*image.RGBA) error {
 		binary.Write(&buf, binary.LittleEndian, uint32(offset))
 		offset += len(data)
 		body.Write(data)
-		entries = append(entries, entry{data, w, h})
 	}
 	buf.Write(body.Bytes())
 	return os.WriteFile(path, buf.Bytes(), 0o644)

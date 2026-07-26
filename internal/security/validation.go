@@ -110,7 +110,7 @@ func ValidateDiscordWebhookURL(raw string) (string, error) {
 		return "", fmt.Errorf("could not parse webhook URL: %w", err)
 	}
 	if u.Scheme != "https" {
-		return "", errors.New("Discord webhook URL must use https")
+		return "", errors.New("webhook URL must use https (Discord requires HTTPS)")
 	}
 	if u.User != nil {
 		return "", errors.New("webhook URL must not contain embedded credentials")

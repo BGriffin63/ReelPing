@@ -1,0 +1,27 @@
+# gitleaks configuration for ReelPing.
+#
+# Extends the default ruleset but allowlists the FAKE example secrets used in
+# tests and documentation (there are no real secrets in this repository — real
+# secrets are only ever entered at runtime through the authenticated web UI and
+# stored under /config, which is never committed).
+title = "ReelPing gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow example/fake secrets in tests and docs"
+paths = [
+  '''.*_test\.go$''',
+  '''docs/.*''',
+  '''README\.md''',
+  '''CHANGELOG\.md''',
+]
+# Fake tokens/webhooks used as fixtures in tests and examples.
+regexes = [
+  '''discord(app)?\.com/api/webhooks/123456789012345678/[A-Za-z]+''',
+  '''SECRET-PLEX-TOKEN-XYZ''',
+  '''SECRET-WEBHOOK-TOKEN''',
+  '''supersecrettoken''',
+  '''abcdefghijklmnop''',
+]
