@@ -1,8 +1,10 @@
 # Build output
 /dist/
 /bin/
-reelping
-reelping.exe
+# Compiled binaries at the repo root only (anchored so they do NOT match the
+# cmd/reelping source directory).
+/reelping
+/reelping.exe
 *.test
 *.out
 
