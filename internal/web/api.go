@@ -17,26 +17,41 @@ func writeJSON(w http.ResponseWriter, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
+// formFirst returns the first non-empty form value among the given keys. The
+// setup wizard and the settings page use different field names for the same
+// concept (e.g. "plex_url" vs "base_url"), so the test endpoints accept both.
+func formFirst(r *http.Request, keys ...string) string {
+	for _, k := range keys {
+		if v := r.FormValue(k); v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
 // handleTestPlex tests a Plex connection using posted values (falling back to
 // saved config), and returns a JSON result. It never echoes the token.
 func (a *App) handleTestPlex(w http.ResponseWriter, r *http.Request) {
 	cfg, _ := a.store.GetConfig()
-	baseURL := r.FormValue("base_url")
+	// Accept both the setup-wizard field names (plex_url/plex_token/plex_timeout)
+	// and the settings-page names (base_url/token/timeout).
+	suppliedURL := formFirst(r, "base_url", "plex_url")
+	baseURL := suppliedURL
 	if baseURL == "" {
 		baseURL = cfg.Plex.BaseURL
 	}
-	token := r.FormValue("token")
+	token := formFirst(r, "token", "plex_token")
 	if token == "" {
 		token = cfg.Plex.PlexToken
 	}
 	timeout := cfg.Plex.TimeoutSeconds
-	if to, err := strconv.Atoi(r.FormValue("timeout")); err == nil && to >= 1 {
+	if to, err := strconv.Atoi(formFirst(r, "timeout", "plex_timeout")); err == nil && to >= 1 {
 		timeout = to
 	}
 	opts := plex.Options{
 		BaseURL:       baseURL,
 		Token:         token,
-		VerifyTLS:     r.FormValue("verify_tls") != "" || (r.FormValue("base_url") == "" && cfg.Plex.VerifyTLS),
+		VerifyTLS:     r.FormValue("verify_tls") != "" || (suppliedURL == "" && cfg.Plex.VerifyTLS),
 		Timeout:       time.Duration(timeout) * time.Second,
 		FetchSessions: token != "",
 	}
@@ -73,7 +88,8 @@ func (a *App) handleTestPlex(w http.ResponseWriter, r *http.Request) {
 // handleTestDiscord sends a test webhook message.
 func (a *App) handleTestDiscord(w http.ResponseWriter, r *http.Request) {
 	cfg, _ := a.store.GetConfig()
-	webhook := r.FormValue("webhook")
+	// Accept the setup-wizard name (discord_webhook) and the settings name (webhook).
+	webhook := formFirst(r, "webhook", "discord_webhook")
 	if webhook == "" {
 		webhook = cfg.Discord.WebhookURL
 	}

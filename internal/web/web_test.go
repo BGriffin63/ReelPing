@@ -226,6 +226,38 @@ func TestDiagnosticsDownloadHasNoSecrets(t *testing.T) {
 	}
 }
 
+// TestSetupPlexTestReadsWizardFieldName guards against the field-name mismatch
+// where the setup wizard posts "plex_url" but the handler only read "base_url".
+func TestSetupPlexTestReadsWizardFieldName(t *testing.T) {
+	// Fake Plex that answers /identity.
+	plexSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/identity" {
+			_, _ = w.Write([]byte(`<MediaContainer machineIdentifier="ABC123" version="1.40"/>`))
+			return
+		}
+		w.WriteHeader(404)
+	}))
+	defer plexSrv.Close()
+
+	app, _ := newTestApp(t) // no admin yet -> setup endpoints are open
+	srv := httptest.NewServer(app.Handler())
+	defer srv.Close()
+
+	resp, err := http.PostForm(srv.URL+"/setup/test/plex", url.Values{"plex_url": {plexSrv.URL}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	s := string(b)
+	if strings.Contains(s, "value is required") {
+		t.Fatalf("setup Plex test did not read the plex_url field: %s", s)
+	}
+	if !strings.Contains(s, `"ok":true`) {
+		t.Fatalf("expected a successful test against the fake Plex, got: %s", s)
+	}
+}
+
 func mkAdmin(username, hash string) model.Admin {
 	now := time.Now().UTC()
 	return model.Admin{Username: username, PasswordHash: hash, CreatedAt: now, UpdatedAt: now}
