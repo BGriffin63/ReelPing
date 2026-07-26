@@ -6,6 +6,27 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The container now listens on port **8787** by default (previously 8080), so the
+  container and host ports match and are less confusing. Compose/Unraid examples
+  map `8787:8787`. Override with `RP_ADDR` if needed. **If you run the container
+  manually, update your port mapping to `-p 8787:8787`.**
+
+### Added
+
+- Optional **auto-finish maintenance**: when enabled, ReelPing announces Plex is
+  back and clears the maintenance window automatically once Plex returns (after
+  it actually went down and stayed up for the recovery threshold).
+- Discord avatar asset (`assets/reelping-avatar.png`).
+
+### Fixed
+
+- `.gitignore` no longer excludes the `cmd/reelping` package.
+- Setup-wizard **Test connection** / **Send test** buttons now read the wizard's
+  field names (`plex_url` / `discord_webhook`).
+- GHCR image references are lowercase; icon/template URLs use the correct repo case.
+
 ## [0.5.0-beta] - 2026-07-24
 
 First public beta.

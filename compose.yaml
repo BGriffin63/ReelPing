@@ -15,7 +15,7 @@ services:
     container_name: reelping
     restart: unless-stopped
     ports:
-      - "8787:8080"        # host:container — open http://<host>:8787
+      - "8787:8787"        # host:container — open http://<host>:8787
     volumes:
       - ./config:/config   # persistent data (database, settings)
     environment:

@@ -40,11 +40,11 @@ COPY --from=build --chown=99:100 /out/config /config
 # appdata share, so /config is writable out of the box on Unraid.
 USER 99:100
 
-ENV RP_ADDR=":8080" \
+ENV RP_ADDR=":8787" \
     RP_CONFIG_DIR="/config" \
     TZ="UTC"
 
-EXPOSE 8080
+EXPOSE 8787
 VOLUME ["/config"]
 
 # The health check probes ReelPing itself. A Plex outage never marks the

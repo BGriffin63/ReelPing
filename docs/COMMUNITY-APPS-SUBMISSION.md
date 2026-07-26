@@ -32,7 +32,7 @@ Validate everything against the current official CA documentation:
 - [ ] `templates/reelping.xml` is `<Container version="2">` and well-formed
       (`xmllint --noout`).
 - [ ] Only documented fields are used (no invented XML fields).
-- [ ] Maps only port `8080`→`8787` and `/config`; `TZ` variable; no secrets.
+- [ ] Maps only port `8787` and `/config`; `TZ` variable; no secrets.
 - [ ] `Privileged=false`; no Docker socket, host networking, or host paths.
 - [ ] `WebUI`, `Icon`, `TemplateURL`, `Repository`, `Registry`, `Project`,
       `Support` are correct, reachable URLs.

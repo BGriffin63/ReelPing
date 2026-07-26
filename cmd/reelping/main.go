@@ -49,7 +49,7 @@ func main() {
 		return
 	}
 
-	addr := envDefault("RP_ADDR", ":8080")
+	addr := envDefault("RP_ADDR", ":8787")
 	configDir := envDefault("RP_CONFIG_DIR", "/config")
 	dbPath := filepath.Join(configDir, "reelping.db")
 
@@ -183,7 +183,7 @@ func backgroundMaintenance(ctx context.Context, store *storage.Store, sessions *
 func runHealthcheck(addr string) int {
 	_, port, err := net.SplitHostPort(addr)
 	if err != nil || port == "" {
-		port = "8080"
+		port = "8787"
 	}
 	client := &http.Client{Timeout: 4 * time.Second}
 	resp, err := client.Get("http://127.0.0.1:" + port + "/healthz")

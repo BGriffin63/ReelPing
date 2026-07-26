@@ -18,7 +18,7 @@ flowchart LR
         UI["ReelPing WebUI\n(server-rendered HTML)"]
     end
 
-    subgraph Container["ReelPing container (non-root, port 8080)"]
+    subgraph Container["ReelPing container (non-root, port 8787)"]
         HTTP["HTTP server\nnet/http + middleware"]
         Auth["Auth / sessions / CSRF\nArgon2id"]
         Web["Web handlers + templates"]

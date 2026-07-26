@@ -26,7 +26,7 @@ go test ./...
 Run locally:
 
 ```bash
-RP_CONFIG_DIR=./config RP_ADDR=:8080 go run ./cmd/reelping
+RP_CONFIG_DIR=./config RP_ADDR=:8787 go run ./cmd/reelping
 ```
 
 Regenerate branding assets after editing `assets/reelping.svg` / the generator:

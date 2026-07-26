@@ -8,7 +8,7 @@ are **never** set via environment variables.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `RP_ADDR` | `:8080` | Listen address (`host:port`). |
+| `RP_ADDR` | `:8787` | Listen address (`host:port`). |
 | `RP_CONFIG_DIR` | `/config` | Directory for the database and backups. |
 | `TZ` | `UTC` | Container time zone (also selectable in the UI). |
 | `PUID` / `PGID` | `99` / `100` | Informational on Unraid; the image runs as `99:100`. |

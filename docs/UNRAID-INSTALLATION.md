@@ -24,8 +24,8 @@ Until ReelPing is listed in CA, you can add it manually:
 2. Docker tab → **Add Container**, set:
    - **Repository:** `ghcr.io/bgriffin63/reelping:latest`
    - **Network Type:** `Bridge`
-   - **WebUI:** `http://[IP]:[PORT:8080]`
-   - **Port:** container `8080` → host `8787` (TCP)
+   - **WebUI:** `http://[IP]:[PORT:8787]`
+   - **Port:** container `8787` → host `8787` (TCP)
    - **Path:** container `/config` → host `/mnt/user/appdata/reelping` (RW)
    - **Variable:** `TZ` → your time zone
    - Leave **Privileged** off. Add extra param `--security-opt no-new-privileges`.

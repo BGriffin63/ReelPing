@@ -139,7 +139,7 @@ the only value surfaced, and only when the administrator explicitly opts in.
 - Common top-level elements: `Name`, `Repository`, `Registry`, `Network`,
   `Privileged`, `Support`, `Project`, `Overview`, `Category`, `WebUI`,
   `TemplateURL`, `Icon`, `ExtraParams`, `Requires`.
-- `WebUI` uses the pattern `http://[IP]:[PORT:8080]`.
+- `WebUI` uses the pattern `http://[IP]:[PORT:8787]`.
 - `<Config>` elements describe ports, paths, variables, labels and devices with
   attributes: `Name`, `Target`, `Default`, `Mode`, `Description`,
   `Type` (`Path|Port|Variable|Label|Device`), `Display`
@@ -152,7 +152,7 @@ the only value surfaced, and only when the administrator explicitly opts in.
 
 - ReelPing ships a single `<Container version="2">` template
   (`templates/reelping.xml`) that maps only:
-  - Port `8080` → host `8787` (`Type="Port"`).
+  - Port `8787` (container and host) (`Type="Port"`).
   - `/config` → `/mnt/user/appdata/reelping` (`Type="Path"`, `Mode="rw"`).
   - `TZ`, `PUID`, `PGID`, `UMASK` environment variables.
 - **No secrets** (Plex token, Discord webhook) are present in the template.
@@ -208,7 +208,7 @@ parameters travel with the hash and can be upgraded later.
 
 - Multi-stage Docker build: `golang:1.26` builder → `gcr.io/distroless/static`
   (or `scratch` + CA bundle) final image, `CGO_ENABLED=0`, static binary.
-- Runs as a non-root numeric UID, exposes only `8080`, persists only `/config`,
+- Runs as a non-root numeric UID, exposes only `8787`, persists only `/config`,
   ships a self-contained `/reelping -healthcheck` command for the Docker
   `HEALTHCHECK`, and handles `SIGTERM` for graceful shutdown.
 
