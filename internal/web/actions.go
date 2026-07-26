@@ -137,7 +137,8 @@ func (a *App) handleGoingOffline(w http.ResponseWriter, r *http.Request) {
 	m := model.Maintenance{
 		ID: model.NewID(), Kind: model.MaintenanceOffline, State: model.MaintActive,
 		Title: "Plex is going offline", Reason: reason, ActualStart: &now,
-		MentionPolicy: string(mp), CreatedBy: a.username(r), CreatedAt: now, UpdatedAt: now,
+		MentionPolicy: string(mp), AutoRecovery: r.FormValue("auto_recovery") != "",
+		CreatedBy: a.username(r), CreatedAt: now, UpdatedAt: now,
 	}
 	if dur := parseDurationMinutes(r.FormValue("duration_min")); dur > 0 {
 		end := now.Add(dur)
@@ -295,10 +296,13 @@ func (a *App) handleCustomAnnounce(w http.ResponseWriter, r *http.Request) {
 func (a *App) enterMaintenance(id string) {
 	st := a.worker.State()
 	st.ActiveMaintenanceID = id
+	st.ConsecutiveSuccesses = 0
 	if a.worker.LastResult().OK {
 		st.State = monitoring.StateMaintenanceOnline
+		st.MaintenanceSawOffline = false
 	} else {
 		st.State = monitoring.StateMaintenanceOffline
+		st.MaintenanceSawOffline = true
 	}
 	st.UpdatedAt = time.Now().UTC()
 	_ = a.store.SaveMonitorState(st)
@@ -307,6 +311,8 @@ func (a *App) enterMaintenance(id string) {
 func (a *App) exitMaintenance() {
 	st := a.worker.State()
 	st.ActiveMaintenanceID = ""
+	st.MaintenanceSawOffline = false
+	st.ConsecutiveSuccesses = 0
 	if a.worker.LastResult().OK {
 		st.State = monitoring.StateOnline
 	} else {

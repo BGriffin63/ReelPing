@@ -22,6 +22,7 @@ type Store interface {
 	GetIncident(id string) (model.Incident, error)
 	PutIncident(model.Incident) error
 	GetMaintenance(id string) (model.Maintenance, error)
+	PutMaintenance(model.Maintenance) error
 }
 
 // NewEngine builds an Engine.
@@ -57,7 +58,7 @@ func (e *Engine) Step(res plex.CheckResult, cfg config.Config, now time.Time, st
 
 	// Maintenance mode: unexpected outages are suppressed.
 	if st.ActiveMaintenanceID != "" {
-		return e.stepMaintenance(&st, res, now)
+		return e.stepMaintenance(&st, res, cfg, now)
 	}
 
 	var effects []Effect
@@ -200,22 +201,55 @@ func (e *Engine) stepFailure(st *model.MonitorState, cfg config.Config, now time
 	return effects, nil
 }
 
-func (e *Engine) stepMaintenance(st *model.MonitorState, res plex.CheckResult, now time.Time) ([]Effect, error) {
+func (e *Engine) stepMaintenance(st *model.MonitorState, res plex.CheckResult, cfg config.Config, now time.Time) ([]Effect, error) {
 	var effects []Effect
 	if res.OK {
-		wasOffline := st.State == StateMaintenanceOffline
+		if st.State == StateMaintenanceOffline {
+			st.MaintenanceSawOffline = true
+		}
 		st.State = StateMaintenanceOnline
 		st.LastSuccessAt = now
 		st.ConsecutiveFailures = 0
-		if wasOffline {
-			if m, err := e.store.GetMaintenance(st.ActiveMaintenanceID); err == nil && m.AutoRecovery {
-				effects = append(effects, Effect{Kind: EffectMaintenanceRecovery, IncidentID: "", Critical: false})
+		st.ConsecutiveSuccesses++
+
+		// Auto-finish: if the maintenance window opted in, and Plex actually went
+		// down and has now been back for the recovery threshold, announce it's
+		// back AND end the maintenance automatically (and close any open
+		// incident). The saw-offline gate prevents ending maintenance before the
+		// admin has taken Plex down, and the threshold rides out a reboot flap.
+		m, mErr := e.store.GetMaintenance(st.ActiveMaintenanceID)
+		if mErr == nil && m.AutoRecovery && st.MaintenanceSawOffline &&
+			st.ConsecutiveSuccesses >= cfg.Monitoring.RecoveryThreshold {
+			end := now
+			m.State = model.MaintEnded
+			m.ActualEnd = &end
+			_ = e.store.PutMaintenance(m)
+
+			if st.ActiveIncidentID != "" {
+				if inc, err := e.store.GetIncident(st.ActiveIncidentID); err == nil {
+					inc.Open = false
+					inc.RecoveredAt = &end
+					inc.LastSuccessAt = now
+					inc.DurationSeconds = int64(now.Sub(inc.ConfirmedOfflineAt).Seconds())
+					if inc.DurationSeconds < 0 {
+						inc.DurationSeconds = 0
+					}
+					inc.RecoveryNotified = true
+					_ = e.store.PutIncident(inc)
+				}
+				st.ActiveIncidentID = ""
 			}
+			st.ActiveMaintenanceID = ""
+			st.MaintenanceSawOffline = false
+			st.ConsecutiveSuccesses = 0
+			st.State = StateOnline
+			effects = append(effects, Effect{Kind: EffectMaintenanceRecovery, Critical: false})
 		}
 	} else {
 		st.State = StateMaintenanceOffline
 		st.LastFailureAt = now
 		st.ConsecutiveSuccesses = 0
+		st.MaintenanceSawOffline = true
 	}
 	if err := e.store.SaveMonitorState(*st); err != nil {
 		return nil, err

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/BGriffin63/reelping/internal/config"
+	"github.com/BGriffin63/reelping/internal/model"
 	"github.com/BGriffin63/reelping/internal/plex"
 	"github.com/BGriffin63/reelping/internal/storage"
 )
@@ -245,6 +246,55 @@ func TestMaintenanceSuppressesOutage(t *testing.T) {
 	incs, _ := store.ListIncidents(0, nil)
 	if len(incs) != 0 {
 		t.Fatalf("no incident during maintenance, got %d", len(incs))
+	}
+}
+
+func TestMaintenanceAutoFinish(t *testing.T) {
+	store := testStore(t)
+	e := NewEngine(store)
+	cfg := balancedCfg()
+	clock := time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)
+
+	// Start maintenance (opted into auto-recovery) while Plex is up.
+	_ = store.PutMaintenance(model.Maintenance{ID: "m1", State: model.MaintActive, AutoRecovery: true})
+	st := e.LoadState()
+	st.ActiveMaintenanceID = "m1"
+	st.State = StateMaintenanceOnline
+	_ = store.SaveMonitorState(st)
+
+	// Guard: while Plex has NOT gone offline, staying up must not auto-finish.
+	if efs := feed(t, e, cfg, &clock, okResult(), 3, false); len(efs) != 0 {
+		t.Fatalf("must not auto-finish before Plex has gone offline, got %v", efs)
+	}
+	if e.LoadState().ActiveMaintenanceID != "m1" {
+		t.Fatalf("maintenance should still be active")
+	}
+
+	// Plex goes down during maintenance (no outage alert), then comes back.
+	feed(t, e, cfg, &clock, failResult(), 2, false)
+	if got := e.LoadState().State; got != StateMaintenanceOffline {
+		t.Fatalf("expected maintenance-offline, got %s", got)
+	}
+
+	// First success: back online but below recovery threshold — no finish yet.
+	if efs := feed(t, e, cfg, &clock, okResult(), 1, false); len(efs) != 0 {
+		t.Fatalf("first success should not finish maintenance yet, got %v", efs)
+	}
+	// Second success: auto-finish — one recovery effect, maintenance cleared.
+	efs := feed(t, e, cfg, &clock, okResult(), 1, false)
+	if n := countKind(efs, EffectMaintenanceRecovery); n != 1 {
+		t.Fatalf("expected exactly one maintenance-recovery effect, got %d (%v)", n, efs)
+	}
+	final := e.LoadState()
+	if final.ActiveMaintenanceID != "" {
+		t.Fatalf("maintenance should be cleared after auto-finish")
+	}
+	if final.State != StateOnline {
+		t.Fatalf("expected online after auto-finish, got %s", final.State)
+	}
+	m, _ := store.GetMaintenance("m1")
+	if m.State != model.MaintEnded {
+		t.Fatalf("maintenance record should be marked ended, got %s", m.State)
 	}
 }
 

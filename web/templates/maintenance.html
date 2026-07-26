@@ -35,7 +35,7 @@
     <div class="form-row"><label>Title</label><input type="text" name="title" value="Scheduled Plex maintenance"></div>
     <div class="form-row"><label>Reason</label><textarea name="reason" placeholder="Server updates and restart"></textarea></div>
     <div class="form-row"><label>Estimated duration (minutes)</label><input type="number" name="duration_min" min="1" value="30"></div>
-    <label class="checkbox"><input type="checkbox" name="auto_recovery"> Announce automatically when Plex returns</label>
+    <label class="checkbox"><input type="checkbox" name="auto_recovery" checked> When Plex returns, automatically announce it's back and end maintenance</label>
     <label class="checkbox"><input type="checkbox" name="include_streams"> Include active stream count</label>
     {{template "mentionpicker" .}}
     <button class="btn warn" type="submit">Start &amp; announce</button>
@@ -48,7 +48,7 @@
     <div class="form-row"><label>Scheduled start</label><input type="datetime-local" name="start"></div>
     <div class="form-row"><label>Estimated end</label><input type="datetime-local" name="estimated_end"></div>
     <label class="checkbox"><input type="checkbox" name="announce_now" checked> Send the announcement now</label>
-    <label class="checkbox"><input type="checkbox" name="auto_recovery"> Announce automatically when Plex returns</label>
+    <label class="checkbox"><input type="checkbox" name="auto_recovery" checked> When Plex returns, automatically announce it's back and end maintenance</label>
     {{template "mentionpicker" .}}
     <button class="btn" type="submit">Schedule</button>
   </form>
@@ -58,6 +58,7 @@
     <p class="subtle">For an intentional, unscheduled shutdown. Enters maintenance mode before Plex goes down.</p>
     <div class="form-row"><label>Reason (optional)</label><input type="text" name="reason"></div>
     <div class="form-row"><label>Estimated duration (minutes)</label><input type="number" name="duration_min" min="1"></div>
+    <label class="checkbox"><input type="checkbox" name="auto_recovery" checked> When Plex returns, automatically announce it's back and end maintenance</label>
     {{template "mentionpicker" .}}
     <button class="btn" type="submit">Announce &amp; go offline</button>
   </form>

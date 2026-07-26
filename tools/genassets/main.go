@@ -247,6 +247,9 @@ func main() {
 	must(writeICO(filepath.Join(out, "favicon.ico"), []*image.RGBA{ico16, ico32}))
 
 	must(writePNG(filepath.Join(out, "reelping-social-card.png"), renderSocialCard()))
+	// Discord avatar: 512px mark on a solid dark tile (looks good cropped to a
+	// circle, unlike a transparent PNG on Discord's grey).
+	must(writePNG(filepath.Join(out, "reelping-avatar.png"), renderMark(512, dark, false)))
 	println("assets written to", out)
 }
 

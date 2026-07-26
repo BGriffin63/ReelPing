@@ -29,24 +29,25 @@ type Session struct {
 
 // MonitorState is the persisted snapshot of the monitoring state machine.
 type MonitorState struct {
-	State                string    `json:"state"`
-	ConsecutiveFailures  int       `json:"consecutive_failures"`
-	ConsecutiveSuccesses int       `json:"consecutive_successes"`
-	LastCheckAt          time.Time `json:"last_check_at"`
-	LastSuccessAt        time.Time `json:"last_success_at"`
-	LastFailureAt        time.Time `json:"last_failure_at"`
-	FirstFailureAt       time.Time `json:"first_failure_at"`
-	LastLatencyMillis    int64     `json:"last_latency_millis"`
-	LastClassification   string    `json:"last_classification"`
-	LastDetail           string    `json:"last_detail"`
-	ActiveIncidentID     string    `json:"active_incident_id"`
-	ActiveMaintenanceID  string    `json:"active_maintenance_id"`
-	LatencyBreachCount   int       `json:"latency_breach_count"`
-	LastNotificationAt   time.Time `json:"last_notification_at"`
-	StreamCount          int       `json:"stream_count"`
-	StreamCountKnown     bool      `json:"stream_count_known"`
-	IdentityVerified     bool      `json:"identity_verified"`
-	UpdatedAt            time.Time `json:"updated_at"`
+	State                 string    `json:"state"`
+	ConsecutiveFailures   int       `json:"consecutive_failures"`
+	ConsecutiveSuccesses  int       `json:"consecutive_successes"`
+	LastCheckAt           time.Time `json:"last_check_at"`
+	LastSuccessAt         time.Time `json:"last_success_at"`
+	LastFailureAt         time.Time `json:"last_failure_at"`
+	FirstFailureAt        time.Time `json:"first_failure_at"`
+	LastLatencyMillis     int64     `json:"last_latency_millis"`
+	LastClassification    string    `json:"last_classification"`
+	LastDetail            string    `json:"last_detail"`
+	ActiveIncidentID      string    `json:"active_incident_id"`
+	ActiveMaintenanceID   string    `json:"active_maintenance_id"`
+	MaintenanceSawOffline bool      `json:"maintenance_saw_offline"`
+	LatencyBreachCount    int       `json:"latency_breach_count"`
+	LastNotificationAt    time.Time `json:"last_notification_at"`
+	StreamCount           int       `json:"stream_count"`
+	StreamCountKnown      bool      `json:"stream_count_known"`
+	IdentityVerified      bool      `json:"identity_verified"`
+	UpdatedAt             time.Time `json:"updated_at"`
 }
 
 // Incident is a confirmed outage record.
