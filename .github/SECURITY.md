@@ -11,9 +11,9 @@ ReelPing is in beta. Security fixes target the latest released version and
 
 Instead, report privately using GitHub's
 [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
-on this repository (Security → Report a vulnerability), or contact the
-maintainer at the address listed in the project support thread
-(`YOUR_SUPPORT_THREAD_URL`).
+on this repository (Security → Report a vulnerability), or open a minimal
+non-sensitive issue asking a maintainer to make contact at
+<https://github.com/BGriffin63/ReelPing/issues>.
 
 Please include:
 

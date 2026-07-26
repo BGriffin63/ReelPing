@@ -12,7 +12,7 @@
 - **Bugs:** open a [bug report](https://github.com/BGriffin63/reelping/issues/new?template=bug_report.yml).
 - **Feature ideas:** open a [feature request](https://github.com/BGriffin63/reelping/issues/new?template=feature_request.yml).
 - **Setup help:** open a [support request](https://github.com/BGriffin63/reelping/issues/new?template=support_request.yml).
-- **Unraid users:** the community support thread at `YOUR_SUPPORT_THREAD_URL`.
+- **Unraid users:** open a [GitHub issue](https://github.com/BGriffin63/ReelPing/issues) (a dedicated Unraid forum support thread may be added later).
 
 ## Please always
 

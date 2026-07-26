@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<CommunityApplications>
+  <Profile>
+**ReelPing** — Keep your viewers in the loop.
+
+A lightweight, self-hosted **Plex Media Server status monitor and Discord notifier**, optimized for Unraid.
+
+ReelPing watches your Plex server and posts **one** clear Discord alert when a confirmed outage happens, a recovery notice (with the outage duration) when it's back, and gives you one-click **planned-maintenance** announcements — schedule, start-now, "going offline", delay updates, and service-restored.
+
+- Uses **Discord incoming webhooks** — no bot required.
+- Works with Plex hosted anywhere reachable over the network (Docker, VM, another NAS, another server, or a reverse proxy).
+- **No** privileged mode, Docker socket, host networking, or media/Plex access — it only reaches Plex over the network.
+- **No telemetry.** Authenticated web UI (Argon2id, CSRF, security headers); no default password.
+
+For documentation, installation, issues, and support, visit the [GitHub repository](https://github.com/BGriffin63/ReelPing).
+
+ReelPing is an independent community project and is **not** affiliated with or endorsed by Plex, Inc., Discord Inc., or Lime Technology, Inc.
+  </Profile>
+  <Icon>https://raw.githubusercontent.com/BGriffin63/ReelPing/main/assets/reelping-256.png</Icon>
+  <WebPage>https://github.com/BGriffin63/ReelPing</WebPage>
+</CommunityApplications>

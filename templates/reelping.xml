@@ -11,8 +11,8 @@
   <MyIP/>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
-  <Support>YOUR_SUPPORT_THREAD_URL</Support>
-  <Project>https://github.com/BGriffin63/reelping</Project>
+  <Support>https://github.com/BGriffin63/ReelPing/issues</Support>
+  <Project>https://github.com/BGriffin63/ReelPing</Project>
   <Overview>ReelPing is a lightweight, self-hosted Plex Media Server status monitor and Discord notifier. It continuously checks whether your Plex server is reachable and, when a confirmed outage occurs, sends one clear Discord notification (and a recovery notice with the outage duration when Plex returns). An authenticated web interface lets you announce scheduled maintenance, "going offline now", delays, and custom messages with one click.&#13;&#10;&#13;&#10;ReelPing works with Plex hosted anywhere reachable over the network: an Unraid Docker container, a VM, another NAS, or another server. It needs NO privileged mode, NO Docker socket, NO host networking, and NO access to Plex's configuration or media &#8212; only a network URL it can reach.&#13;&#10;&#13;&#10;Enter your Plex token and Discord webhook in the authenticated web UI (never in this template). Uses Discord incoming webhooks &#8212; no Discord bot required.&#13;&#10;&#13;&#10;ReelPing is an independent community project and is not affiliated with or endorsed by Plex, Inc., Discord Inc., or Lime Technology, Inc.</Overview>
   <Category>Tools: Status:Stable</Category>
   <WebUI>http://[IP]:[PORT:8787]</WebUI>
