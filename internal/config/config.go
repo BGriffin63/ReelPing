@@ -118,17 +118,34 @@ func (m MonitoringConfig) ConfirmSeconds() int {
 	return m.CheckIntervalSeconds * m.FailureThreshold
 }
 
-// DiscordConfig holds the Discord webhook settings. DiscordWebhookURL is secret.
+// DiscordConfig holds the Discord webhook settings. WebhookURL is secret.
 type DiscordConfig struct {
 	WebhookURL       string        `json:"webhook_url"` // secret
 	UsernameOverride string        `json:"username_override"`
 	AvatarURL        string        `json:"avatar_url"`
 	DefaultMention   MentionPolicy `json:"default_mention"`
 	RoleID           string        `json:"role_id"`
+
+	// An additional Discord-compatible webhook (e.g. Root, Guilded, Revolt).
+	// Notifications fan out to it in addition to the primary Discord webhook.
+	ExtraEnabled bool   `json:"extra_enabled"`
+	ExtraLabel   string `json:"extra_label"`
+	ExtraURL     string `json:"extra_url"` // secret
 }
 
 // HasWebhook reports whether a Discord webhook is configured.
 func (d DiscordConfig) HasWebhook() bool { return d.WebhookURL != "" }
+
+// HasExtra reports whether the additional compatible webhook is enabled and set.
+func (d DiscordConfig) HasExtra() bool { return d.ExtraEnabled && d.ExtraURL != "" }
+
+// ExtraName returns the display label for the additional webhook.
+func (d DiscordConfig) ExtraName() string {
+	if d.ExtraLabel != "" {
+		return d.ExtraLabel
+	}
+	return "webhook"
+}
 
 // SecurityConfig holds auth/session/proxy settings.
 type SecurityConfig struct {

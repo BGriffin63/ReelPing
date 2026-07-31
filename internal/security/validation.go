@@ -133,6 +133,43 @@ func ValidateDiscordWebhookURL(raw string) (string, error) {
 	return u.String(), nil
 }
 
+// ValidateWebhookURL validates a generic HTTPS webhook URL for a Discord-
+// compatible service (e.g. Root, Guilded). It requires HTTPS, rejects embedded
+// credentials and control characters, and validates the host — but does NOT
+// restrict the host to Discord's domains. Used for additional notification
+// destinations.
+func ValidateWebhookURL(raw string) (string, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return "", ErrEmpty
+	}
+	if hasControlChars(raw) {
+		return "", ErrControlChars
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return "", fmt.Errorf("could not parse webhook URL: %w", err)
+	}
+	if u.Scheme != "https" {
+		return "", errors.New("webhook URL must use https")
+	}
+	if u.User != nil {
+		return "", errors.New("webhook URL must not contain embedded credentials")
+	}
+	if u.Hostname() == "" {
+		return "", errors.New("webhook URL must contain a host")
+	}
+	if err := validateHost(u.Hostname()); err != nil {
+		return "", err
+	}
+	if p := u.Port(); p != "" {
+		if err := validatePortString(p); err != nil {
+			return "", err
+		}
+	}
+	return u.String(), nil
+}
+
 // validateHost validates a hostname or IP literal (no port).
 func validateHost(host string) error {
 	if host == "" {

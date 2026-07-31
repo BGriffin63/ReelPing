@@ -31,7 +31,7 @@ type Result struct {
 	RedactedError string
 }
 
-// Config configures the Discord provider.
+// Config configures the Discord (or Discord-compatible) provider.
 type Config struct {
 	WebhookURL       string
 	UsernameOverride string
@@ -39,6 +39,11 @@ type Config struct {
 	MaxRetries       int
 	// PerAttemptTimeout bounds a single HTTP attempt.
 	PerAttemptTimeout time.Duration
+	// AllowAnyHost accepts any HTTPS host instead of only Discord's domains.
+	// Used for Discord-compatible services (e.g. Root, Guilded).
+	AllowAnyHost bool
+	// ProviderName labels delivery records; defaults to "discord".
+	ProviderName string
 }
 
 // Discord is the Discord incoming-webhook provider.
@@ -49,9 +54,17 @@ type Discord struct {
 	sleep  func(context.Context, time.Duration) error
 }
 
-// New builds a Discord provider after validating the webhook URL.
+// New builds a Discord (or Discord-compatible) provider after validating the
+// webhook URL. When cfg.AllowAnyHost is set, any HTTPS host is accepted;
+// otherwise only Discord's domains are allowed.
 func New(cfg Config) (*Discord, error) {
-	normalized, err := security.ValidateDiscordWebhookURL(cfg.WebhookURL)
+	var normalized string
+	var err error
+	if cfg.AllowAnyHost {
+		normalized, err = security.ValidateWebhookURL(cfg.WebhookURL)
+	} else {
+		normalized, err = security.ValidateDiscordWebhookURL(cfg.WebhookURL)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +96,12 @@ func New(cfg Config) (*Discord, error) {
 }
 
 // Name implements Provider.
-func (d *Discord) Name() string { return "discord" }
+func (d *Discord) Name() string {
+	if d.cfg.ProviderName != "" {
+		return d.cfg.ProviderName
+	}
+	return "discord"
+}
 
 // Send delivers a message with bounded retries, backoff+jitter, and 429
 // handling. It never returns a raw error containing the webhook URL.

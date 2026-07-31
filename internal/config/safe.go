@@ -30,6 +30,10 @@ type SafeConfig struct {
 		AvatarURL         string        `json:"avatar_url"`
 		DefaultMention    MentionPolicy `json:"default_mention"`
 		RoleID            string        `json:"role_id"`
+		ExtraEnabled      bool          `json:"extra_enabled"`
+		ExtraLabel        string        `json:"extra_label"`
+		ExtraConfigured   bool          `json:"extra_configured"`
+		ExtraHint         string        `json:"extra_hint"`
 	} `json:"discord"`
 
 	Security   SecurityConfig   `json:"security"`
@@ -65,5 +69,11 @@ func (c Config) Safe(hintFn func(string) string) SafeConfig {
 	s.Discord.AvatarURL = c.Discord.AvatarURL
 	s.Discord.DefaultMention = c.Discord.DefaultMention
 	s.Discord.RoleID = c.Discord.RoleID
+	s.Discord.ExtraEnabled = c.Discord.ExtraEnabled
+	s.Discord.ExtraLabel = c.Discord.ExtraLabel
+	s.Discord.ExtraConfigured = c.Discord.ExtraURL != ""
+	if c.Discord.ExtraURL != "" && hintFn != nil {
+		s.Discord.ExtraHint = hintFn(c.Discord.ExtraURL)
+	}
 	return s
 }

@@ -38,13 +38,16 @@ func (s *Service) Deliver(ctx context.Context, category string, m discord.Messag
 	}
 	now := s.now().UTC()
 
-	if !cfg.Discord.HasWebhook() {
+	dests := destinations(cfg)
+
+	if len(dests) == 0 {
 		s.record(model.Notification{Category: category, RelatedID: relatedID, Success: false,
 			Suppressed: true, SuppressReason: "no webhook configured", ResultCode: "no_webhook"}, now)
 		return false
 	}
 
-	// Idempotency: never send the same event twice (e.g. browser refresh).
+	// Idempotency: never send the same event twice (e.g. browser refresh). This
+	// is reserved once for the whole event, covering all destinations.
 	if m.IdempotencyKey != "" {
 		fresh, _ := s.store.ReserveIdempotency(m.IdempotencyKey, now, 24*time.Hour)
 		if !fresh {
@@ -52,35 +55,61 @@ func (s *Service) Deliver(ctx context.Context, category string, m discord.Messag
 		}
 	}
 
-	// Quiet hours.
+	// Quiet hours (applies to the whole event).
 	if suppressed, reason := s.quietHoursSuppresses(cfg, now, critical); suppressed {
 		s.record(model.Notification{Category: category, RelatedID: relatedID, Success: false,
 			Suppressed: true, SuppressReason: reason, ResultCode: "quiet_hours"}, now)
 		return false
 	}
 
-	prov, err := discord.New(discord.Config{
-		WebhookURL:       cfg.Discord.WebhookURL,
-		UsernameOverride: cfg.Discord.UsernameOverride,
-		AvatarURL:        cfg.Discord.AvatarURL,
-	})
-	if err != nil {
-		s.record(model.Notification{Category: category, RelatedID: relatedID, Success: false,
-			ResultCode: "invalid_webhook", RedactedError: "configured webhook is invalid"}, now)
-		return false
+	anySent := false
+	for _, dc := range dests {
+		prov, err := discord.New(dc)
+		if err != nil {
+			s.record(model.Notification{Provider: dc.ProviderName, Category: category, RelatedID: relatedID,
+				Success: false, ResultCode: "invalid_webhook", RedactedError: "configured webhook is invalid"}, now)
+			continue
+		}
+		res := prov.Send(ctx, m)
+		s.record(model.Notification{
+			Provider:      prov.Name(),
+			Category:      category,
+			Success:       res.Success,
+			ResultCode:    res.ResultCode,
+			RetryCount:    res.RetryCount,
+			RedactedError: res.RedactedError,
+			RelatedID:     relatedID,
+		}, now)
+		if res.Success {
+			anySent = true
+		}
 	}
+	return anySent
+}
 
-	res := prov.Send(ctx, m)
-	s.record(model.Notification{
-		Provider:      prov.Name(),
-		Category:      category,
-		Success:       res.Success,
-		ResultCode:    res.ResultCode,
-		RetryCount:    res.RetryCount,
-		RedactedError: res.RedactedError,
-		RelatedID:     relatedID,
-	}, now)
-	return res.Success
+// destinations builds the ordered list of webhook destinations a notification
+// fans out to: the primary Discord webhook, then any additional
+// Discord-compatible webhook (e.g. Root).
+func destinations(cfg config.Config) []discord.Config {
+	var dests []discord.Config
+	if cfg.Discord.HasWebhook() {
+		dests = append(dests, discord.Config{
+			WebhookURL:       cfg.Discord.WebhookURL,
+			UsernameOverride: cfg.Discord.UsernameOverride,
+			AvatarURL:        cfg.Discord.AvatarURL,
+			ProviderName:     "discord",
+		})
+	}
+	if cfg.Discord.HasExtra() {
+		dests = append(dests, discord.Config{
+			WebhookURL:       cfg.Discord.ExtraURL,
+			UsernameOverride: cfg.Discord.UsernameOverride,
+			AvatarURL:        cfg.Discord.AvatarURL,
+			AllowAnyHost:     true,
+			ProviderName:     cfg.Discord.ExtraName(),
+		})
+	}
+	return dests
 }
 
 // quietHoursSuppresses reports whether the current time falls inside quiet hours

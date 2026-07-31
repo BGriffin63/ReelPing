@@ -88,6 +88,40 @@ func (a *App) handleTestPlex(w http.ResponseWriter, r *http.Request) {
 // handleTestDiscord sends a test webhook message.
 func (a *App) handleTestDiscord(w http.ResponseWriter, r *http.Request) {
 	cfg, _ := a.store.GetConfig()
+
+	// target=extra tests the additional Discord-compatible webhook (any host);
+	// otherwise the primary Discord webhook is tested.
+	if r.FormValue("target") == "extra" {
+		webhook := formFirst(r, "extra_webhook")
+		if webhook == "" {
+			webhook = cfg.Discord.ExtraURL
+		}
+		prov, err := discord.New(discord.Config{
+			WebhookURL:       webhook,
+			UsernameOverride: cfg.Discord.UsernameOverride,
+			AvatarURL:        cfg.Discord.AvatarURL,
+			AllowAnyHost:     true,
+			ProviderName:     cfg.Discord.ExtraName(),
+		})
+		if err != nil {
+			writeJSON(w, map[string]any{"ok": false, "message": "Invalid webhook: " + err.Error()})
+			return
+		}
+		ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second)
+		defer cancel()
+		res := prov.Send(ctx, discord.Message{
+			Style:       discord.StyleTest,
+			Title:       "ReelPing test successful",
+			Description: "If you can see this message, ReelPing can reach this webhook.",
+		})
+		if res.Success {
+			writeJSON(w, map[string]any{"ok": true, "message": "Test successful — check your channel."})
+			return
+		}
+		writeJSON(w, map[string]any{"ok": false, "message": "Delivery failed (" + res.ResultCode + ")."})
+		return
+	}
+
 	// Accept the setup-wizard name (discord_webhook) and the settings name (webhook).
 	webhook := formFirst(r, "webhook", "discord_webhook")
 	if webhook == "" {

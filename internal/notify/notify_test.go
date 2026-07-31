@@ -49,6 +49,35 @@ func TestQuietHoursSuppression(t *testing.T) {
 	}
 }
 
+func TestFanOutDestinations(t *testing.T) {
+	cfg := config.Default()
+	// No webhooks -> 0 destinations.
+	if d := destinations(cfg); len(d) != 0 {
+		t.Fatalf("expected 0 destinations, got %d", len(d))
+	}
+	// Primary only -> 1.
+	cfg.Discord.WebhookURL = "https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnop"
+	if d := destinations(cfg); len(d) != 1 || d[0].ProviderName != "discord" {
+		t.Fatalf("expected 1 discord destination, got %+v", d)
+	}
+	// Add an enabled extra (Root) -> 2, second is any-host with the label.
+	cfg.Discord.ExtraEnabled = true
+	cfg.Discord.ExtraLabel = "Root"
+	cfg.Discord.ExtraURL = "https://root.example.com/api/webhooks/abc"
+	d := destinations(cfg)
+	if len(d) != 2 {
+		t.Fatalf("expected 2 destinations, got %d", len(d))
+	}
+	if !d[1].AllowAnyHost || d[1].ProviderName != "Root" {
+		t.Fatalf("extra destination misconfigured: %+v", d[1])
+	}
+	// Extra present but disabled -> back to 1.
+	cfg.Discord.ExtraEnabled = false
+	if d := destinations(cfg); len(d) != 1 {
+		t.Fatalf("disabled extra should not add a destination, got %d", len(d))
+	}
+}
+
 func TestDeliverWithoutWebhookRecordsSuppressed(t *testing.T) {
 	store := testStore(t)
 	// Config with no webhook.

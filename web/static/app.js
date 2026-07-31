@@ -68,6 +68,8 @@
       var out = document.querySelector(btn.getAttribute("data-test-output"));
       var form = btn.closest("form");
       var body = form ? new URLSearchParams(new FormData(form)) : new URLSearchParams();
+      var target = btn.getAttribute("data-test-target");
+      if (target) body.set("target", target);
       if (out) { out.textContent = "Testing…"; out.className = "flash info"; }
       fetch(endpoint, { method: "POST", body: body, headers: { "X-Requested-With": "fetch" } })
         .then(function (r) { return r.json(); })

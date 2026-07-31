@@ -59,6 +59,31 @@ func TestValidateDiscordWebhookURL(t *testing.T) {
 	}
 }
 
+func TestValidateWebhookURL(t *testing.T) {
+	good := []string{
+		"https://root.example.com/api/webhooks/abc123",
+		"https://guilded.gg/api/webhooks/1/xyz",
+		"https://chat.example.internal:8443/hook",
+	}
+	for _, u := range good {
+		if _, err := ValidateWebhookURL(u); err != nil {
+			t.Errorf("expected %q valid, got %v", u, err)
+		}
+	}
+	bad := []string{
+		"",
+		"http://root.example.com/hook", // must be https
+		"https://user:pass@root.example.com/hook", // no credentials
+		"https://root.example.com/hook\r\nX: y",   // control chars
+		"ftp://root.example.com/hook",             // wrong scheme
+	}
+	for _, u := range bad {
+		if _, err := ValidateWebhookURL(u); err == nil {
+			t.Errorf("expected %q invalid", u)
+		}
+	}
+}
+
 func TestValidateRoleID(t *testing.T) {
 	if _, err := ValidateRoleID("123456789012345678"); err != nil {
 		t.Errorf("valid role id rejected: %v", err)

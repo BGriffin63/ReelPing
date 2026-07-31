@@ -96,6 +96,29 @@ func (a *App) handleSaveDiscord(w http.ResponseWriter, r *http.Request) {
 	cfg.Monitoring.AutoRecoveryNotify = r.FormValue("auto_recovery") != ""
 	cfg.Monitoring.AutoOutageMention = validMention(r.FormValue("auto_outage_mention"))
 	cfg.Monitoring.AutoRecoveryMention = validMention(r.FormValue("auto_recovery_mention"))
+
+	// Additional Discord-compatible webhook (e.g. Root).
+	cfg.Discord.ExtraEnabled = r.FormValue("extra_enabled") != ""
+	cfg.Discord.ExtraLabel = firstNonEmpty(security.CleanText(r.FormValue("extra_label"), 40, true), "Root")
+	if r.FormValue("remove_extra") != "" {
+		cfg.Discord.ExtraURL = ""
+		a.audit(r, "discord_webhook_removed", "additional webhook")
+	} else if ex := r.FormValue("extra_webhook"); ex != "" {
+		normalized, err := security.ValidateWebhookURL(ex)
+		if err != nil {
+			a.setFlash(w, "err", "Additional webhook invalid: "+err.Error())
+			http.Redirect(w, r, "/settings", http.StatusSeeOther)
+			return
+		}
+		had := cfg.Discord.ExtraURL != ""
+		cfg.Discord.ExtraURL = normalized
+		if had {
+			a.audit(r, "discord_webhook_replaced", "additional webhook")
+		} else {
+			a.audit(r, "discord_webhook_added", "additional webhook")
+		}
+	}
+
 	_ = a.store.SaveConfig(cfg)
 	a.setFlash(w, "ok", "Discord settings saved.")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)

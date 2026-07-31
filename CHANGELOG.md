@@ -6,6 +6,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Additional Discord-compatible webhook** destination (e.g. Root, Guilded,
+  Revolt, or any service that accepts a Discord-style webhook). Every alert
+  fans out to both the primary Discord webhook and this one. Configure it under
+  Settings → Discord, with its own label, enable toggle, and test button. The
+  URL is stored as a secret (redacted like the Discord webhook).
+
 ### Changed
 
 - The container now listens on port **8787** by default (previously 8080), so the

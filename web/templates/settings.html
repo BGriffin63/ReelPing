@@ -93,6 +93,17 @@
       <div class="form-row"><label>Recovery mention</label>
         <select name="auto_recovery_mention">{{range .Data.Mentions}}<option value="{{.Value}}" {{if eq .Value $.Cfg.Monitoring.AutoRecoveryMention}}selected{{end}}>{{.Label}}</option>{{end}}</select></div>
     </fieldset>
+    <fieldset><legend>Additional webhook (Discord-compatible, e.g. Root)</legend>
+      <p class="subtle">ReelPing also sends every alert to this webhook, using the same message format. Works with Discord-compatible chat apps (Root, Guilded, Revolt) and anything that accepts a Discord-style webhook. Status: {{if .Safe.Discord.ExtraConfigured}}<span class="badge ok"><span class="dot"></span>Configured {{.Safe.Discord.ExtraHint}}</span>{{else}}<span class="badge neutral"><span class="dot"></span>Not set</span>{{end}}</p>
+      <label class="checkbox"><input type="checkbox" name="extra_enabled" {{if .Cfg.Discord.ExtraEnabled}}checked{{end}}> Enable sending to this webhook</label>
+      <div class="form-row"><label>Label</label><input type="text" name="extra_label" maxlength="40" value="{{if .Cfg.Discord.ExtraLabel}}{{.Cfg.Discord.ExtraLabel}}{{else}}Root{{end}}"></div>
+      <div class="form-row"><label>Replace webhook URL</label><input type="password" name="extra_webhook" autocomplete="off" placeholder="https://... (leave blank to keep current)"></div>
+      <label class="checkbox"><input type="checkbox" name="remove_extra"> Remove this webhook</label>
+      <div class="btn-row">
+        <button class="btn" type="button" data-test-endpoint="/api/test/discord" data-test-target="extra" data-test-output="#extra-test">Send test to this webhook</button>
+      </div>
+      <div id="extra-test" class="subtle" style="margin-top:8px"></div>
+    </fieldset>
     <div class="btn-row">
       <button class="btn primary" type="submit">Save Discord</button>
       <button class="btn" type="button" data-test-endpoint="/api/test/discord" data-test-output="#discord-test">Send test</button>
